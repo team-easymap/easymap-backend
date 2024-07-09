@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  MgmtAdminGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: MgmtAdminGroup
+      ManagedPolicyArns:
+        - !Sub "arn:aws:iam::${AWS::AccountId}:policy/ForceMFAPolicy"
+        - !Sub "arn:aws:iam::${AWS::AccountId}:policy/MgmtAdminPolicy"
+      Path: "/"
+
+  MgmtDeveloperGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: MgmtDeveloperGroup
+      ManagedPolicyArns:
+        - !Sub "arn:aws:iam::${AWS::AccountId}:policy/ForceMFAPolicy"
+        - !Sub "arn:aws:iam::${AWS::AccountId}:policy/MgmtDeveloperPolicy"
+      Path: "/"
+
+  BillingGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: BillingGroup
+      ManagedPolicyArns:
+        - !Sub "arn:aws:iam::${AWS::AccountId}:policy/ForceMFAPolicy"
+        - !Sub "arn:aws:iam::${AWS::AccountId}:policy/BillingPolicy"
+      Path: "/"
+
+  ReadOnlyAccessGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: ReadOnlyAccessGroup
+      ManagedPolicyArns:
+        - !Sub "arn:aws:iam::${AWS::AccountId}:policy/ForceMFAPolicy"
+        - !Sub "arn:aws:iam::${AWS::AccountId}:policy/ReadOnlyAccessPolicy"
+      Path: "/"
+

@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  MgmtAdminPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "MgmtAdminPolicy"
+      Description: "Policy for MGMT AWS Administrator"
+      Path: "/"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "AllowAssumeRoleAnywhere"
+            Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Resource: "*"
+
+  MgmtDeveloperPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "MgmtDeveloperPolicy"
+      Description: "Policy for MGMT AWS Developer"
+      Path: "/"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "AllowAssumeRoleExceptAdmin"
+            Effect: "Allow"
+            Action: "sts:AssumeRole"
+            NotResource: "arn:aws:iam::*:role/OrganizationAccountAccessRole"
+
+  BillingPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "BillingPolicy"
+      Description: "Policy to assume BillingRole of All Accounts"
+      Path: "/"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+            Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Resource: "arn:aws:iam::*:role/BillingRole"
+
+  ReadOnlyAccessPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "ReadOnlyAccessPolicy"
+      Description: "Policy to assume ReadOnlyAccessRole of All Accounts"
+      Path: "/"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "AllowAssumeRoleReadOnlyAccess"
+            Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Resource: "arn:aws:iam::*:role/ReadOnlyAccessRole"
+
+  ForceMFAPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "ForceMFAPolicy"
+      Description: "Policy for Force MFA Authentication"
+      Path: "/"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Sid: "AllowAllUsersToListAccounts"
+            Effect: "Allow"
+            Action:
+              - "iam:ListAccountAliases"
+              - "iam:ListUsers"
+              - "iam:ListVirtualMFADevices"
+              - "iam:GetAccountPasswordPolicy"
+              - "iam:GetAccountSummary"
+            Resource: "*"
+          -
+            Sid: "AllowIndividualUserToSeeAndManageOnlyTheirOwnAccountInformation"
+            Effect: "Allow"
+            Action:
+              - "iam:ChangePassword"
+              - "iam:CreateAccessKey"
+              - "iam:CreateLoginProfile"
+              - "iam:DeleteAccessKey"
+              - "iam:DeleteLoginProfile"
+              - "iam:GetLoginProfile"
+              - "iam:ListAccessKeys"
+              - "iam:UpdateAccessKey"
+              - "iam:ListSigningCertificates"
+              - "iam:DeleteSigningCertificate"
+              - "iam:UpdateSigningCertificate"
+              - "iam:UploadSigningCertificate"
+              - "iam:ListSSHPublicKeys"
+              - "iam:GetSSHPublicKey"
+              - "iam:DeleteSSHPublicKey"
+              - "iam:UpdateSSHPublicKey"
+              - "iam:UploadSSHPublicKey"
+            Resource: "arn:aws:iam::*:user/${aws:username}"
+          -
+            Sid: "AllowIndividualUserToViewAndManageTheirOwnMFA"
+            Effect: "Allow"
+            Action:
+              - "iam:CreateVirtualMFADevice"
+              - "iam:DeleteVirtualMFADevice"
+              - "iam:EnableMFADevice"
+              - "iam:ListMFADevices"
+              - "iam:ResyncMFADevice"
+            Resource:
+              - "arn:aws:iam::*:mfa/${aws:username}"
+              - "arn:aws:iam::*:user/${aws:username}"
+          -
+            Sid: "AllowIndividualUserToDeactivateOnlyTheirOwnMFAOnlyWhenUsingMFA"
+            Effect: "Allow"
+            Action:
+              - "iam:DeactivateMFADevice"
+            Resource:
+              - "arn:aws:iam::*:mfa/${aws:username}"
+              - "arn:aws:iam::*:user/${aws:username}"
+            Condition:
+              Bool:
+                aws:MultiFactorAuthPresent: "true"
+          -
+            Sid: "BlockMostAccessUnlessSignedInWithMFA"
+            Effect: "Deny"
+            NotAction:
+              - "iam:ChangePassword"
+              - "iam:CreateVirtualMFADevice"
+              - "iam:DeleteVirtualMFADevice"
+              - "iam:ListVirtualMFADevices"
+              - "iam:EnableMFADevice"
+              - "iam:ResyncMFADevice"
+              - "iam:ListAccountAliases"
+              - "iam:ListUsers"
+              - "iam:ListSSHPublicKeys"
+              - "iam:ListAccessKeys"
+              - "iam:ListServiceSpecificCredentials"
+              - "iam:ListMFADevices"
+              - "iam:GetAccountSummary"
+              - "sts:GetSessionToken"
+            Resource: "*"
+            Condition:
+              BoolIfExists:
+                aws:MultiFactorAuthPresent: "false"

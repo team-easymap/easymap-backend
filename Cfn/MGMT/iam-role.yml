@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  # IAM Role
+  OrganizationAccountAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "OrganizationAccountAccessRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AdministratorAccess"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: "sts:AssumeRole"
+            Condition:
+              Bool:
+                "aws:MultiFactorAuthPresent": "true"
+      Path: "/"
+
+  BillingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: BillingRole
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/job-function/Billing"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: "sts:AssumeRole"
+            Condition:
+              Bool:
+                "aws:MultiFactorAuthPresent": "true"
+      Path: "/"
+
+  DeveloperRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: DeveloperAccessRole
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/PowerUserAccess"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: "sts:AssumeRole"
+            Condition:
+              Bool:
+                "aws:MultiFactorAuthPresent": "true"
+      Path: "/"
+
+  ReadOnlyAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ReadOnlyAccessRole
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/ReadOnlyAccess"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: "sts:AssumeRole"
+            Condition:
+              Bool:
+                "aws:MultiFactorAuthPresent": "true"
+      Path: "/"
