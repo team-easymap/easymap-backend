@@ -1,0 +1,205 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  SystemName:
+    Type: String
+    Default: "easymap"
+    
+  Environment:
+    Type: String
+    AllowedValues:
+      - prd
+      
+  PostgreSQLMajorVersion:
+    Description: "Select the PostgreSQL engine major version. (default: 15)"
+    Type: String
+    Default: 16
+    AllowedValues: [16]
+    
+  PostgreSQLMinorVersion:
+    Description: "Select the PostgreSQL engine minor version."
+    Type: String
+    Default: 3
+    AllowedValues: [3]
+    
+  RDSDBInstanceClass:
+    Description: "Select the DB Instance class. (default: db:t3.small)"
+    Type: String
+    Default: db.t4g.micro
+    AllowedValues:
+      - db.m5.large
+      - db.r5.large
+      - db.t4g.micro
+      - db.t4g.small
+      - db.t4g.medium
+      
+  RDSDBInstanceStorageSize:
+    Description: "Enter the DB Instance storage size. (default: 20 GiB)"
+    Type: String
+    Default: 20
+    
+  RDSDBInstanceStorageType:
+    Description: "Enter the DB Instance storage type. (default: gp3)"
+    Type: String
+    Default: gp2
+    AllowedValues: [gp2, gp3]
+    
+  RDSDBName:
+    Description: "Enter the database name. (default: postgres)"
+    Type: String
+    Default: postgres
+    
+  RDSDBMasterUserName:
+    Description: "Enter the master username."
+    Type: String
+    Default: easymap
+    
+  RDSDBMasterUserPassword:
+    Description: "Enter the master password."
+    Type: String
+    Default: easymap1!
+    NoEcho: true
+    
+  MultiAZEnabled:
+    Description: "Select whether you want to enable Multi-AZ or not. (default: false)"
+    Type: String
+    Default: false
+    AllowedValues: [true, false]
+    
+  EnablePerformanceInsights:
+    Description: "Select whether to enable performance insights. "
+    Type: String
+    Default: true
+    AllowedValues: [true, false]
+    
+  BackupRetentionPeriod:
+    Description: "Select the backup retention period."
+    Type: String
+    Default: 7
+    AllowedValues: [0, 1, 3, 7, 14, 21, 30, 35]
+    
+  PreferredBackupWindow:
+    Description: "Enter the time of day to perform backups, separated by 30 minutes. (format/UTC: hh24:mi-hh24:mi)"
+    Type: String
+    Default: 19:00-19:30
+    
+  PreferredMaintenanceWindow:
+    Description: "Enter the time of day to perform maintenances, separated by 30 minutes. (format/UTC: ddd:hh24:mi-ddd:hh24:mi)"
+    Type: String
+    Default: sun:20:00-sun:20:30
+    
+  AutoMinorVersionUpgradeEnabled:
+    Description: "Select whether to enable RDS DB Instance minor version auto upgrade."
+    Type: String
+    Default: true
+    AllowedValues: [true, false]
+    
+  DeletionProtectionEnabled:
+    Description: "Select whether to enable deletion protection."
+    Type: String
+    Default: false
+    AllowedValues: [true, false]
+
+Resources:
+  # -------------------------------------
+  # IAM Role
+  # -------------------------------------
+  RDSMonitoringRole:
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub RDSMonitoringRole-${SystemName}-${Environment}
+      Path: /service-role/
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: monitoring.rds.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole
+
+  # -------------------------------------
+  # DB Instance
+  # -------------------------------------
+  RDSDBInstance:
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: postgres
+      EngineVersion: !Sub ${PostgreSQLMajorVersion}.${PostgreSQLMinorVersion}
+      DBInstanceIdentifier: !Sub ${SystemName}-${Environment}-rds
+      MasterUsername: !Ref RDSDBMasterUserName
+      MasterUserPassword: !Ref RDSDBMasterUserPassword
+      DBInstanceClass: !Ref RDSDBInstanceClass
+      StorageType: !Ref RDSDBInstanceStorageType
+      AllocatedStorage: !Ref RDSDBInstanceStorageSize
+      MultiAZ: !Ref MultiAZEnabled
+      DBSubnetGroupName: 
+        - Fn::ImportValue:
+            !Sub "${SystemName}-${Environment}-PrivateDBSubnetGroup"
+      PubliclyAccessible: false
+      VPCSecurityGroups:
+        - Fn::ImportValue:
+            !Sub "${SystemName}-${Environment}-default-sg"
+      DBName: !Ref RDSDBName
+      DBParameterGroupName: !Ref RDSDBParameterGroup
+      BackupRetentionPeriod: !Ref BackupRetentionPeriod
+      PreferredBackupWindow: !Ref PreferredBackupWindow
+      CopyTagsToSnapshot: true
+      StorageEncrypted: true
+      EnablePerformanceInsights: !Ref EnablePerformanceInsights
+      MonitoringInterval: 60
+      MonitoringRoleArn: !GetAtt RDSMonitoringRole.Arn
+      EnableCloudwatchLogsExports: [postgresql]
+      AutoMinorVersionUpgrade: !Ref AutoMinorVersionUpgradeEnabled
+      PreferredMaintenanceWindow: !Ref PreferredMaintenanceWindow
+      DeletionProtection: !Ref DeletionProtectionEnabled
+      Tags:
+        - Key: Name
+          Value: !Sub ${SystemName}-${Environment}-rds
+          
+  # -------------------------------------
+  # DB ParameterGroup
+  # -------------------------------------
+  RDSDBParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Description: !Sub ${SystemName}-${Environment}-rds-pg
+      Family: !Sub postgres${PostgreSQLMajorVersion}
+      Parameters:
+        log_duration: 1
+        log_min_duration_statement: 10000
+        log_statement: all
+        timezone: Asia/Seoul
+
+  # -------------------------------------
+  # Route53 RecordSet
+  # -------------------------------------
+  LpRdsDbRecord:
+    DependsOn: RDSDBInstance
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId:
+        Fn::ImportValue:
+          !Sub "${SystemName}-${Environment}-private-hosetedzone"
+      Name: !Sub "rds.${SystemName}.${Environment}"
+      Type: CNAME
+      TTL: 300
+      ResourceRecords:
+        - !GetAtt RDSDBInstance.Endpoint.Address
+      Comment: "RDS CNAME RecordSet"     
+
+# ------------------------------------------------------------
+# Output
+# ------------------------------------------------------------
+Outputs:
+  RDSDBInstanceID:
+    Value: !Ref RDSDBInstance
+  RDSDBInstanceEndpoint:
+    Value: !GetAtt RDSDBInstance.Endpoint.Address
+  RDSDBName:
+    Value: !Ref RDSDBName

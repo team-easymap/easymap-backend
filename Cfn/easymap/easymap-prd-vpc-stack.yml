@@ -1,0 +1,716 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  SystemName:
+    Type: String
+    Default: "easymap"
+  Environment:
+    Type: String
+    AllowedValues:
+      - prd
+  AwsMasterAccountID:
+    Type: String
+    
+  VPCCIDR:
+    Description: First and Second Octet of VPC, For example xxx.xxx (192.168 / 172.16-31 / 10.0-255)
+    Type: String
+    Default: '10.100'    
+    
+#Mappings:
+#  EnvironmentMap:
+#    prd:
+#      VPCCidr: "10.100"
+#    stg:
+#      VPCCidr: "10.101"
+      
+Mappings:
+  StackConfig:
+    VPC:
+      CIDR: .0.0/20
+    PublicSubnet01:
+      CIDR: .0.0/24
+    PublicSubnet02:
+      CIDR: .1.0/24
+    ProtectedSubnet01:
+      CIDR: .4.0/24
+    ProtectedSubnet02:
+      CIDR: .5.0/24
+    PrivateSubnet01:
+      CIDR: .8.0/24
+    PrivateSubnet02:
+      CIDR: .9.0/24
+    PrivateSubnet03:
+      CIDR: .10.0/24
+
+Resources:
+
+  # VPC
+
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, VPC, CIDR]}]
+      InstanceTenancy: default
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-vpc"
+          
+  Ipv6VPCCidrBlock:
+    Type: AWS::EC2::VPCCidrBlock
+    Properties:
+      AmazonProvidedIpv6CidrBlock: true
+      VpcId: !Ref 'VPC'
+
+  DHCPOptions:
+    Type: AWS::EC2::DHCPOptions
+    Properties:
+      DomainName: !Sub
+        "${AWS::Region}.compute.internal ${SystemName}.${Environment}"
+      DomainNameServers:
+        - AmazonProvidedDNS
+
+  VPCDHCPOptionsAssociation:
+    Type: AWS::EC2::VPCDHCPOptionsAssociation
+    Properties:
+      DhcpOptionsId: !Ref DHCPOptions
+      VpcId: !Ref VPC
+
+  # VPC S3 Endpoint
+
+  VPCS3Endpoint:
+    Type: "AWS::EC2::VPCEndpoint"
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action: "s3:*"
+            Resource: "*"
+      RouteTableIds:
+        - !Ref ProtectedRouteTable01
+        - !Ref ProtectedRouteTable02
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.s3"
+      VpcId: !Ref VPC
+
+  # SecurityGroup
+
+  ### Subnet Setting
+
+  PublicSubnet01:
+    Type: AWS::EC2::Subnet
+    DependsOn:
+    - VPCGatewayAttachment
+    - Ipv6VPCCidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, PublicSubnet01, CIDR]}]
+      Ipv6CidrBlock: !Sub ['${Param1}00::/64', {Param1: !Select ['0', !Split ['00::/',
+              !Select [0, !GetAtt 'VPC.Ipv6CidrBlocks']]]}]
+      AssignIpv6AddressOnCreation: true
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: !Ref AWS::Region
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-public-subnet01"
+
+  PublicSubnet02:
+    Type: AWS::EC2::Subnet
+    DependsOn:
+    - VPCGatewayAttachment
+    - Ipv6VPCCidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, PublicSubnet02, CIDR]}]
+      Ipv6CidrBlock: !Sub ['${Param1}01::/64', {Param1: !Select ['0', !Split ['00::/',
+              !Select [0, !GetAtt 'VPC.Ipv6CidrBlocks']]]}]
+      AssignIpv6AddressOnCreation: true
+      AvailabilityZone: !Select
+        - 1
+        - Fn::GetAZs: !Ref AWS::Region
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-public-subnet02"
+
+  # PublicSubnet03:
+  #   Type: AWS::EC2::Subnet
+  #   Properties:
+  #     VpcId: !Ref VPC
+  #     CidrBlock: !Join
+  #       - ''
+  #       - - !FindInMap [EnvironmentMap, !Ref Environment, VPCCidr]
+  #         - .32.0/20
+  #     AvailabilityZone: !Select
+  #       - 1
+  #       - Fn::GetAZs: !Ref AWS::Region
+  #     Tags:
+  #       - Key: Name
+  #         Value: !Sub "${SystemName}-${Environment}-public-subnet03"
+
+  ProtectedSubnet01:
+    Type: AWS::EC2::Subnet
+    DependsOn:
+    - VPCGatewayAttachment
+    - Ipv6VPCCidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, ProtectedSubnet01, CIDR]}]
+      Ipv6CidrBlock: !Sub ['${Param1}04::/64', {Param1: !Select ['0', !Split ['00::/',
+              !Select [0, !GetAtt 'VPC.Ipv6CidrBlocks']]]}]
+      AssignIpv6AddressOnCreation: true
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: !Ref AWS::Region
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-protected-subnet01"
+
+  ProtectedSubnet02:
+    Type: AWS::EC2::Subnet
+    DependsOn:
+    - VPCGatewayAttachment
+    - Ipv6VPCCidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, ProtectedSubnet02, CIDR]}]
+      Ipv6CidrBlock: !Sub ['${Param1}05::/64', {Param1: !Select ['0', !Split ['00::/',
+              !Select [0, !GetAtt 'VPC.Ipv6CidrBlocks']]]}]
+      AssignIpv6AddressOnCreation: true
+      AvailabilityZone: !Select
+        - 1
+        - Fn::GetAZs: !Ref AWS::Region
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-protected-subnet02"
+
+  # ProtectedSubnet03:
+  #   Type: AWS::EC2::Subnet
+  #   Properties:
+  #     VpcId: !Ref VPC
+  #     CidrBlock: !Join
+  #       - ''
+  #       - - !FindInMap [EnvironmentMap, !Ref Environment, VPCCidr]
+  #         - .160.0/20
+  #     AvailabilityZone: !Select
+  #       - 1
+  #       - Fn::GetAZs: !Ref AWS::Region
+  #     Tags:
+  #       - Key: Name
+  #         Value: !Sub "${SystemName}-${Environment}-protected-subnet03"
+
+  PrivateSubnet01:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, PrivateSubnet01, CIDR]}]
+      Ipv6CidrBlock: !Sub ['${Param1}08::/64', {Param1: !Select ['0', !Split ['00::/',
+              !Select [0, !GetAtt 'VPC.Ipv6CidrBlocks']]]}]
+      AssignIpv6AddressOnCreation: true
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: !Ref AWS::Region
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-private-subnet01"
+
+  PrivateSubnet02:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, PrivateSubnet02, CIDR]}]
+      Ipv6CidrBlock: !Sub ['${Param1}09::/64', {Param1: !Select ['0', !Split ['00::/',
+              !Select [0, !GetAtt 'VPC.Ipv6CidrBlocks']]]}]
+      AssignIpv6AddressOnCreation: true
+      AvailabilityZone: !Select
+        - 1
+        - Fn::GetAZs: !Ref AWS::Region
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-private-subnet02"
+
+  #PrivateSubnet03:
+  #  Type: AWS::EC2::Subnet
+  #  Properties:
+  #    VpcId: !Ref VPC
+  #    CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, PrivateSubnet03, CIDR]}]
+  #    Ipv6CidrBlock: !Sub ['${Param1}10::/64', {Param1: !Select ['0', !Split ['00::/',
+  #            !Select [0, !GetAtt 'VPC.Ipv6CidrBlocks']]]}]
+  #    AssignIpv6AddressOnCreation: true
+  #    AvailabilityZone: !Select
+  #      - 1
+  #      - Fn::GetAZs: !Ref AWS::Region
+  #    Tags:
+  #      - Key: Name
+  #        Value: !Sub "${SystemName}-${Environment}-private-subnet03"
+
+  ### Internet Gateway Setting
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-igw"
+
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  EgressOnlyInternetGateway:
+    Type: AWS::EC2::EgressOnlyInternetGateway
+    Properties:
+      VpcId: !Ref 'VPC'
+
+
+  ### PublicSubnet Setting
+
+  PublicSubnetRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-public-rtb"
+
+  InternetGatewayRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      RouteTableId: !Ref PublicSubnetRouteTable
+      GatewayId: !Ref InternetGateway
+    DependsOn: VPCGatewayAttachment
+
+  InternetGatewayRouteV6:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationIpv6CidrBlock: ::/0
+      RouteTableId: !Ref PublicSubnetRouteTable
+      GatewayId: !Ref InternetGateway
+    DependsOn: VPCGatewayAttachment
+    
+  PublicSubnet01Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTable
+      SubnetId: !Ref PublicSubnet01
+
+  PublicSubnet02Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTable
+      SubnetId: !Ref PublicSubnet02
+
+  # PublicSubnet03Association:
+  #   Type: AWS::EC2::SubnetRouteTableAssociation
+  #   Properties:
+  #     RouteTableId: !Ref PublicSubnetRouteTable
+  #     SubnetId: !Ref PublicSubnet03
+
+  ### ProtectSubnet Setting
+
+  #NatGatewayEIP01:
+  #  Type: AWS::EC2::EIP
+  #  Properties:
+  #    Domain: vpc
+
+  #NatGatewayEIP02:
+  #  Type: AWS::EC2::EIP
+  #  Properties:
+  #    Domain: vpc
+
+  # NatGatewayEIP03:
+  #   Type: AWS::EC2::EIP
+  #   Properties:
+  #     Domain: vpc
+
+ #NatGateway01:
+ #  Type: AWS::EC2::NatGateway
+ #  DependsOn: NatGatewayEIP01
+ #  Properties:
+ #    AllocationId:
+ #      Fn::GetAtt:
+ #        - NatGatewayEIP01
+ #        - AllocationId
+ #    SubnetId: !Ref PublicSubnet01
+
+ # NatGateway02:
+ #   Type: AWS::EC2::NatGateway
+ #   DependsOn: NatGatewayEIP02
+ #   Properties:
+ #     AllocationId:
+ #       Fn::GetAtt:
+ #         - NatGatewayEIP02
+ #         - AllocationId
+ #     SubnetId: !Ref PublicSubnet02
+
+  # NatGateway03:
+  #   Type: AWS::EC2::NatGateway
+  #   DependsOn: NatGatewayEIP03
+  #   Properties:
+  #     AllocationId:
+  #       Fn::GetAtt:
+  #         - NatGatewayEIP03
+  #         - AllocationId
+  #     SubnetId: !Ref PublicSubnet03
+
+  ProtectedRouteTable01:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-protected-rtb01"
+
+  ProtectedRouteTable02:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-protected-rtb02"
+
+  # ProtectedRouteTable03:
+  #   Type: AWS::EC2::RouteTable
+  #   Properties:
+  #     VpcId: !Ref VPC
+  #     Tags:
+  #       - Key: Name
+  #         Value: !Sub "${SystemName}-${Environment}-protected-rtb03"
+
+  ProtectedRoute01:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      RouteTableId: !Ref ProtectedRouteTable01
+  #    NatGatewayId: !Ref NatGateway01
+      GatewayId: !Ref InternetGateway
+    DependsOn: VPCGatewayAttachment
+
+  ProtectedRoute02:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      RouteTableId: !Ref ProtectedRouteTable02
+  #    NatGatewayId: !Ref NatGateway01
+      GatewayId: !Ref InternetGateway
+    DependsOn: VPCGatewayAttachment
+
+  ProtectedRouteV601:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationIpv6CidrBlock: ::/0
+      RouteTableId: !Ref ProtectedRouteTable01
+  #    NatGatewayId: !Ref NatGateway01
+      EgressOnlyInternetGatewayId: !Ref 'EgressOnlyInternetGateway'
+    DependsOn: VPCGatewayAttachment
+
+  ProtectedRouteV602:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationIpv6CidrBlock: ::/0
+      RouteTableId: !Ref ProtectedRouteTable02
+  #    NatGatewayId: !Ref NatGateway01 
+      EgressOnlyInternetGatewayId: !Ref 'EgressOnlyInternetGateway'
+    DependsOn: VPCGatewayAttachment 
+  
+  # ProtectedRoute03:
+  #   Type: AWS::EC2::Route
+  #   Properties:
+  #     DestinationCidrBlock: 0.0.0.0/0
+  #     RouteTableId: !Ref ProtectedRouteTable03
+  #     NatGatewayId: !Ref NatGateway03
+
+  ProtectSubnet01Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref ProtectedRouteTable01
+      SubnetId: !Ref ProtectedSubnet01
+
+  ProtectSubnet02Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref ProtectedRouteTable02
+      SubnetId: !Ref ProtectedSubnet02
+
+  # ProtectSubnet03Association:
+    # Type: AWS::EC2::SubnetRouteTableAssociation
+    # Properties:
+    #   RouteTableId: !Ref ProtectedRouteTable03
+    #   SubnetId: !Ref ProtectedSubnet03
+
+  ### Private Subnet Setting
+
+  PrivateSubnetRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-private-rtb"
+
+  PrivateSubnetAssociation01:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetRouteTable
+      SubnetId: !Ref PrivateSubnet01
+
+  PrivateSubnetAssociation02:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetRouteTable
+      SubnetId: !Ref PrivateSubnet02
+
+ # PrivateSubnetAssociation03:
+ #   Type: AWS::EC2::SubnetRouteTableAssociation
+ #   Properties:
+ #     RouteTableId: !Ref PrivateSubnetRouteTable
+ #     SubnetId: !Ref PrivateSubnet03
+ 
+  PrivateDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnets available for the RDS DB Instance
+      SubnetIds:
+      - !Ref 'PrivateSubnet01'
+      - !Ref 'PrivateSubnet02'
+
+  ### Privade DNS HostedZone
+
+  PrivateDNSHostedZone:
+    Type: "AWS::Route53::HostedZone"
+    Properties:
+      HostedZoneConfig:
+        Comment: "PrivateDNS"
+      Name: !Sub
+        "${SystemName}.${Environment}"
+      VPCs:
+        - VPCId: !Ref VPC
+          VPCRegion: !Ref AWS::Region
+
+Outputs:
+
+  VPC:
+    Description: VPCID
+    Value: !Ref VPC
+    Export:
+      Name: !Join
+        - ''
+        - - !Ref SystemName
+          - "-"
+          - !Ref Environment
+          - "-vpc"
+          
+  Ipv4CidrBlock:
+    Value: !GetAtt VPC.CidrBlock
+          
+  PrivateDNSHostedZone:
+    Description: PrivateDNSHostedZone
+    Value: !Ref PrivateDNSHostedZone
+    Export:
+      Name: !Join
+        - ''
+        - - !Ref SystemName
+          - "-"
+          - !Ref Environment
+          - "-private-hosetedzone"
+
+  DefaultSecurityGroup:
+    Description: DefaultSecurityGroup
+    Value: !GetAtt VPC.DefaultSecurityGroup
+    Export:
+      Name: !Join
+        - ''
+        - - !Ref SystemName
+          - "-"
+          - !Ref Environment
+          - "-default-sg"
+
+  PublicSubnet01:
+    Description: SubnetID of PublicSubnet01
+    Value: !Ref PublicSubnet01
+    Export:
+      Name: !Join
+        - ''
+        - - !Ref SystemName
+          - "-"
+          - !Ref Environment
+          - "-public-subnet01"
+
+  PublicSubnet02:
+    Description: SubnetID of PublicSubnet02
+    Value: !Ref PublicSubnet02
+    Export:
+      Name: !Join
+        - ''
+        - - !Ref SystemName
+          - "-"
+          - !Ref Environment
+          - "-public-subnet02"
+
+  # PublicSubnet03:
+  #   Description: SubnetID of PublicSubnet03
+  #   Value: !Ref PublicSubnet03
+  #   Export:
+  #     Name: !Join
+  #       - ''
+  #       - - !Ref SystemName
+  #         - "-"
+  #         - !Ref Environment
+  #         - "-public-subnet03"
+  
+  PublicSubnet01Ipv4Cidr:
+    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, PublicSubnet01, CIDR]}]
+    
+  PublicSubnet02Ipv4Cidr:
+    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, PublicSubnet02, CIDR]}]
+
+  ProtectedSubnet01:
+    Description: SubnetID of ProtectSubnet01
+    Value: !Ref ProtectedSubnet01
+    Export:
+      Name: !Join
+        - ''
+        - - !Ref SystemName
+          - "-"
+          - !Ref Environment
+          - "-protected-subnet01"
+
+  ProtectedSubnet02:
+    Description: SubnetID of ProtectSubnet02
+    Value: !Ref ProtectedSubnet02
+    Export:
+      Name: !Join
+        - ''
+        - - !Ref SystemName
+          - "-"
+          - !Ref Environment
+          - "-protected-subnet02"
+
+  # ProtectedSubnet03:
+  #   Description: SubnetID of ProtectSubnet03
+  #   Value: !Ref ProtectedSubnet03
+  #   Export:
+  #     Name: !Join
+  #       - ''
+  #       - - !Ref SystemName
+  #         - "-"
+  #         - !Ref Environment
+  #         - "-protected-subnet03"
+
+  ProtectedSubnet01Ipv4Cidr:
+    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, ProtectedSubnet01, CIDR]}]
+    
+  ProtectedSubnet02Ipv4Cidr:
+    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, ProtectedSubnet02, CIDR]}]
+
+  PrivateSubnet01:
+    Description: SubnetID of PrivateSubnet01
+    Value: !Ref PrivateSubnet01
+    Export:
+      Name: !Join
+        - ''
+        - - !Ref SystemName
+          - "-"
+          - !Ref Environment
+          - "-private-subnet01"
+
+  PrivateSubnet02:
+    Description: SubnetID of PrivateSubnet02
+    Value: !Ref PrivateSubnet02
+    Export:
+      Name: !Join
+        - ''
+        - - !Ref SystemName
+          - "-"
+          - !Ref Environment
+          - "-private-subnet02"
+
+ # PrivateSubnet03:
+ #   Description: SubnetID of PrivateSubnet03
+ #   Value: !Ref PrivateSubnet03
+ #   Export:
+ #     Name: !Join
+ #       - ''
+ #       - - !Ref SystemName
+ #         - "-"
+ #         - !Ref Environment
+ #         - "-private-subnet03"
+
+  PrivateSubnet01Ipv4Cidr:
+    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, PrivateSubnet01, CIDR]}]
+    
+  PrivateSubnet02Ipv4Cidr:
+    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, PrivateSubnet02, CIDR]}]
+
+
+  Ipv6CidrBlock:
+    Value: !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]
+    Export:
+      Name: !Sub '${AWS::StackName}-Ipv6CidrBlock'
+      
+  PublicSubnet01Ipv6CidrBlocks:
+    Value: !Select [ 0, !GetAtt PublicSubnet01.Ipv6CidrBlocks ]
+    
+  PublicSubnet02Ipv6CidrBlocks:
+    Value: !Select [ 0, !GetAtt PublicSubnet02.Ipv6CidrBlocks ]
+    
+  ProtectedSubnet01Ipv6CidrBlocks:
+    Value: !Select [ 0, !GetAtt ProtectedSubnet01.Ipv6CidrBlocks ]
+    
+  ProtectedSubnet02Ipv6CidrBlocks:
+    Value: !Select [ 0, !GetAtt ProtectedSubnet02.Ipv6CidrBlocks ]
+    
+  PrivateSubnet01Ipv6CidrBlocks:
+    Value: !Select [ 0, !GetAtt PrivateSubnet01.Ipv6CidrBlocks ]
+    
+  PrivateSubnet02Ipv6CidrBlocks:
+    Value: !Select [ 0, !GetAtt PrivateSubnet02.Ipv6CidrBlocks ]    
+    
+  PrivateDBSubnetGroup: 
+    Value: !Ref 'PrivateDBSubnetGroup'
+    Export:
+      Name: !Join
+        - ''
+        - - !Ref SystemName
+          - "-"
+          - !Ref Environment
+          - "-PrivateDBSubnetGroup"
+    
+  #NatGatewayEIP01:
+  #  Description: IP Address of NatGateway01
+  #  Value: !Ref NatGatewayEIP01
+  #  Export:
+  #    Name: !Join
+  #      - ''
+  #      - - !Ref SystemName
+  #        - "-"
+  #        - !Ref Environment
+  #        - "-natgateway-eip01"
+
+  #NatGatewayEIP02:
+  #  Description: IP Address of NatGateway02
+  #  Value: !Ref NatGatewayEIP02
+  #  Export:
+  #    Name: !Join
+  #      - ''
+  #      - - !Ref SystemName
+  #        - "-"
+  #        - !Ref Environment
+  #        - "-natgateway-eip02"
+
+  # NatGatewayEIP03:
+  #   Description: IP Address of NatGateway03
+  #   Value: !Ref NatGatewayEIP03
+  #   Export:
+  #     Name: !Join
+  #       - ''
+  #       - - !Ref SystemName
+  #         - "-"
+  #         - !Ref Environment
+  #         - "-natgateway-eip03"
+
