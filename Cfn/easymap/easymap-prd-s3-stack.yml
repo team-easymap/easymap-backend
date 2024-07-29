@@ -1,0 +1,361 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  SystemName:
+    Type: String
+    Default: "easymap"
+  Environment:
+    Type: String
+    AllowedValues:
+      - prd
+  # pCloudfrontArn: 
+  #   Type: String
+  #   Default: "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E2YAROJMSMGG4E"
+
+Resources:
+  # S3 Bucket
+  LogS3Bucket:
+    DeletionPolicy: Retain
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName:
+        !Sub |-
+        logs-${AWS::AccountId}
+
+  CodePipelineArtifactStoreBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName:
+        !Join
+        - ""
+        - - "codepipeline-"
+          - !Ref AWS::Region
+          - "-"
+          - !Ref AWS::AccountId
+      LifecycleConfiguration:
+        Rules:
+          - Status: Enabled
+            ExpirationInDays: 30
+
+  FrontendS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "${SystemName}-${Environment}-frontend"
+
+  LocalImagesS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "${SystemName}-${Environment}-local-images"
+
+  ImagesS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "${SystemName}-${Environment}-images"
+
+  LocalUserRouteRawS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "${SystemName}-${Environment}-local-user-route-raw"
+
+  UserRouteRawS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "${SystemName}-${Environment}-user-route-raw"
+
+  LocalUserRouteProcessedS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "${SystemName}-${Environment}-local-user-route-processed"
+
+  UserRouteProcessedS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "${SystemName}-${Environment}-user-route-processed"
+
+  GeographyProcessedS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "${SystemName}-${Environment}-geography-processed"
+
+  # Bucket Policy
+
+  LogBucketPolicy:
+    Type: "AWS::S3::BucketPolicy"
+    Properties:
+      Bucket:
+        Ref: LogS3Bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Sid: "ElbLogOutput"
+            Effect: "Allow"
+            Principal:
+              AWS:
+                - "905418448509"
+            Action: "s3:PutObject"
+            Resource:
+              !Sub |-
+              arn:aws:s3:::${LogS3Bucket}/AWSLogs/${AWS::AccountId}/*
+
+  ImagesS3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref ImagesS3Bucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          # - Sid: AccessFromCloudFront
+          #   Effect: Allow
+          #   Principal:
+          #     AWS: !Ref pCloudfrontArn
+          #   Action: 
+          #     - 's3:GetObject'
+          #   Resource:
+          #     - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-images/*'
+          - Sid: AccessFromWebAppContainer
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-app-role'
+            Action: 
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:PutObjectAcl'
+            Resource:
+              - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-images/*'
+          - Sid: AccessFromLambda
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-lambda-role'
+            Action: 
+              - 's3:*'
+            Resource:
+              - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-images/*'
+
+  LocalImagesS3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref LocalImagesS3Bucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          # - Sid: AccessFromCloudFront
+          #   Effect: Allow
+          #   Principal:
+          #     AWS: !Ref pCloudfrontArn
+          #   Action: 
+          #     - 's3:GetObject'
+          #   Resource:
+          #     - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-local-images/*'
+          - Sid: AccessFromWebAppContainer
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-app-role'
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-local-develop-role'
+            Action: 
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:PutObjectAcl'
+            Resource:
+              - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-local-images/*'
+          - Sid: AccessFromLambda
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-lambda-role'
+            Action: 
+              - 's3:*'
+            Resource:
+              - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-local-images/*'
+              
+  LocalUserRouteRawS3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref LocalUserRouteRawS3Bucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          # - Sid: AccessFromCloudFront
+          #   Effect: Allow
+          #   Principal:
+          #     AWS: !Ref pCloudfrontArn
+          #   Action: 
+          #     - 's3:GetObject'
+          #   Resource:
+          #     - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw/*'
+          - Sid: AccessFromWebAppContainer
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-app-role'
+            Action: 
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:PutObjectAcl'
+            Resource:
+              - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw/*'
+          - Sid: AccessFromDataManager
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-data-manage-role'
+            Action: 
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:PutObjectAcl'
+            Resource:
+              - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw/*'
+          - Sid: AccessFromLambda
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-lambda-role'
+            Action: 
+              - 's3:*'
+            Resource:
+              - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw/*'
+
+  UserRouteRawS3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref UserRouteRawS3Bucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          # - Sid: AccessFromCloudFront
+          #   Effect: Allow
+          #   Principal:
+          #     AWS: !Ref pCloudfrontArn
+          #   Action: 
+          #     - 's3:GetObject'
+          #   Resource:
+          #     - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-user-route-raw/*'
+          - Sid: AccessFromWebAppContainer
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-app-role'
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-local-develop-role'
+            Action: 
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:PutObjectAcl'
+            Resource:
+              - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-user-route-raw/*'
+          - Sid: AccessFromDataManager
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-data-manage-role'
+            Action: 
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:PutObjectAcl'
+            Resource:
+              - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-user-route-raw/*'
+          - Sid: AccessFromLambda
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-lambda-role'
+            Action: 
+              - 's3:*'
+            Resource:
+              - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-user-route-raw/*'
+
+  LocalUserRouteProcessedS3BucketPolicy:
+      Type: 'AWS::S3::BucketPolicy'
+      Properties:
+        Bucket: !Ref LocalUserRouteProcessedS3Bucket
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Sid: AccessFromDataManager
+              Effect: Allow
+              Principal:
+                AWS: 
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-data-manage-role'
+              Action: 
+                - 's3:GetObject'
+                - 's3:PutObject'
+                - 's3:PutObjectAcl'
+              Resource:
+                - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-local-user-route-processed/*'
+            - Sid: AccessFromLambda
+              Effect: Allow
+              Principal:
+                AWS: 
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-lambda-role'
+              Action: 
+                - 's3:*'
+              Resource:
+                - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-local-user-route-processed/*'
+
+  UserRouteProcessedS3BucketPolicy:
+      Type: 'AWS::S3::BucketPolicy'
+      Properties:
+        Bucket: !Ref UserRouteProcessedS3Bucket
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Sid: AccessFromDataManager
+              Effect: Allow
+              Principal:
+                AWS: 
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-data-manage-role'
+              Action: 
+                - 's3:GetObject'
+                - 's3:PutObject'
+                - 's3:PutObjectAcl'
+              Resource:
+                - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-user-route-processed/*'
+            - Sid: AccessFromLambda
+              Effect: Allow
+              Principal:
+                AWS: 
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-lambda-role'
+              Action: 
+                - 's3:*'
+              Resource:
+                - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-user-route-processed/*'
+                
+  GeographyProcessedS3BucketPolicy:
+      Type: 'AWS::S3::BucketPolicy'
+      Properties:
+        Bucket: !Ref GeographyProcessedS3Bucket
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Sid: AccessFromDataManager
+              Effect: Allow
+              Principal:
+                AWS: 
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-data-manage-role'
+              Action: 
+                - 's3:GetObject'
+                - 's3:PutObject'
+                - 's3:PutObjectAcl'
+              Resource:
+                - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-geography-processed/*'
+            - Sid: AccessFromLambda
+              Effect: Allow
+              Principal:
+                AWS: 
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-lambda-role'
+              Action: 
+                - 's3:*'
+              Resource:
+                - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-geography-processed/*'
+                
