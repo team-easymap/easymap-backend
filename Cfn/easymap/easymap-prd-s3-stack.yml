@@ -49,24 +49,68 @@ Resources:
     DeletionPolicy: Retain
     Properties:
       BucketName: !Sub "${SystemName}-${Environment}-local-images"
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - HEAD
+            AllowedOrigins:
+              - '*'
+            MaxAge: 0
 
   ImagesS3Bucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     Properties:
       BucketName: !Sub "${SystemName}-${Environment}-images"
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - HEAD
+            AllowedOrigins:
+              - '*'
+            MaxAge: 0
 
   LocalUserRouteRawS3Bucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     Properties:
       BucketName: !Sub "${SystemName}-${Environment}-local-user-route-raw"
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - HEAD
+            AllowedOrigins:
+              - '*'
+            MaxAge: 0
 
   UserRouteRawS3Bucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     Properties:
       BucketName: !Sub "${SystemName}-${Environment}-user-route-raw"
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - HEAD
+            AllowedOrigins:
+              - '*'
+            MaxAge: 0
 
   LocalUserRouteProcessedS3Bucket:
     Type: AWS::S3::Bucket
@@ -211,6 +255,7 @@ Resources:
             Principal:
               AWS: 
                 - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-data-manage-role'
+                - !Sub 'arn:aws:iam::905418448509:user/An.paul'
             Action: 
               - 's3:GetObject'
               - 's3:PutObject'
@@ -259,6 +304,7 @@ Resources:
             Principal:
               AWS: 
                 - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-data-manage-role'
+                - !Sub 'arn:aws:iam::905418448509:user/An.paul'
             Action: 
               - 's3:GetObject'
               - 's3:PutObject'
@@ -287,6 +333,7 @@ Resources:
               Principal:
                 AWS: 
                   - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-data-manage-role'
+                  - !Sub 'arn:aws:iam::905418448509:user/An.paul'
               Action: 
                 - 's3:GetObject'
                 - 's3:PutObject'
@@ -315,6 +362,7 @@ Resources:
               Principal:
                 AWS: 
                   - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-data-manage-role'
+                  - !Sub 'arn:aws:iam::905418448509:user/An.paul'
               Action: 
                 - 's3:GetObject'
                 - 's3:PutObject'
@@ -343,6 +391,7 @@ Resources:
               Principal:
                 AWS: 
                   - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-data-manage-role'
+                  - !Sub 'arn:aws:iam::905418448509:user/An.paul'
               Action: 
                 - 's3:GetObject'
                 - 's3:PutObject'

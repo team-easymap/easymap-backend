@@ -31,6 +31,10 @@ Resources:
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-images/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-raw/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw/*"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-images"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-images"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-raw"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw"
           -
             Effect: "Allow"
             Action: "s3:*"
@@ -39,6 +43,10 @@ Resources:
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-images/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-raw/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw/*"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-images"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-images"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-raw"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw"
           - Effect: "Allow"
             Action: "sns:Publish"
             Resource: "*"
@@ -59,12 +67,16 @@ Resources:
             Resource:
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-images"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw/*"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-images"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw"
           -
             Effect: "Allow"
             Action: "s3:*"
             Resource:
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-images/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw/*"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-images"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw"
 
   DataManagePolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -85,6 +97,11 @@ Resources:
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-geography-processed/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-raw/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw/*"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-processed"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-processed"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-geography-processed"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-raw"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw"
           -
             Effect: "Allow"
             Action:
@@ -95,6 +112,11 @@ Resources:
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-geography-processed/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-raw/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw/*"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-processed"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-processed"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-geography-processed"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-raw"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw"
 
   LambdaRolePolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -117,6 +139,13 @@ Resources:
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-geography-processed/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-raw/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw/*"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-images"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-images"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-processed"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-processed"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-geography-processed"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-raw"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw"
           - 
             Effect: "Allow"
             Action:
@@ -132,6 +161,13 @@ Resources:
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-geography-processed/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-raw/*"
               - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw/*"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-images"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-images"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-processed"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-processed"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-geography-processed"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-user-route-raw"
+              - !Sub "arn:aws:s3:::${SystemName}-${Environment}-local-user-route-raw"
 
   SnsPutCloudWatchLogsPolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -331,6 +367,7 @@ Resources:
     Properties:
       ManagedPolicyArns:
         - !Ref LambdaRolePolicy
+        - "arn:aws:iam::905418448509:policy/service-role/AWSLambdaBasicExecutionRole-43ebbf5a-c375-438e-b9e8-5db382cac855"
       RoleName: !Sub "${SystemName}-${Environment}-lambda-role"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
