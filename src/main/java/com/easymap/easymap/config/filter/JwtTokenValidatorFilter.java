@@ -30,20 +30,12 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = null;
 
-        // Authorization 헤더 검증 (토큰이 담겼는지)
-        String authorization = request.getHeader("Authorization");
-        if (authorization != null && authorization.startsWith("Bearer ")) {
-            token = authorization.split(" ")[1];
-        }
-
         // 쿠키에서 JWT 토큰 가져오기
-        if (token == null) {
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals("jwt")) {
-                        token = cookie.getValue();
-                    }
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("jwt")) {
+                    token = cookie.getValue();
                 }
             }
         }
