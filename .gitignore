@@ -38,3 +38,4 @@ out/
 
 # Exclude application.yml and application.properties
 application.yml
+/src/main/resources/application-dev.yml
