@@ -27,6 +27,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 @Configuration
@@ -41,7 +42,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000") // React 앱 주소
+                .allowedOrigins("http://localhost:3000", "favicon.ico") // React 앱 주소
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
@@ -83,22 +84,30 @@ public class SecurityConfig implements WebMvcConfigurer {
         return userRequest -> {
             // loadUser 람다
             OAuth2User oauth2User = delegate.loadUser(userRequest);
-
-            // 사용자 정보를 가져온다.
-            String email = oauth2User.getAttribute("email");
-            String name = oauth2User.getAttribute("name");
+            // OAuth 정보를 가져온다.
             String oauth = userRequest.getClientRegistration().getClientName();
+            String email = null;
+            String nickname = null;
+            System.out.println("OAUTH:"+oauth);
+            if(oauth.equals("Google")){
+                email = oauth2User.getAttribute("email");
+                nickname = oauth2User.getAttribute("name");
+            }
+            else if(oauth.equals("Kakao")){
+                email = (String) ((Map<String, Object>) oauth2User.getAttribute("kakao_account")).get("email");
+                nickname = (String) ((Map<String, Object>) oauth2User.getAttribute("properties")).get("nickname");
+            }
 
-            // 사용자 정보를 DB에 저장하거나 업데이트 한다.
             Optional<User> user = userRepository.findByEmail(email);
             if(!user.isPresent()) {
                 User newUser = new User();
                 newUser.setEmail(email);
-                newUser.setNickname(name);
+                newUser.setNickname(nickname);
                 newUser.setOauthType(oauth);
                 newUser.setUserRole("ROLE_USER");
                 userRepository.save(newUser);
             }
+
             return oauth2User;
         };
     }
