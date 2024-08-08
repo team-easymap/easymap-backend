@@ -127,8 +127,11 @@ class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String email = oAuth2User.getAttribute("email");
+        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+        String email = oauth2User.getAttribute("email");
+        if(email == null) {
+            email = (String) ((Map<String, Object>) oauth2User.getAttribute("kakao_account")).get("email");
+        }
         User user = userRepository.findByEmail(email).orElseThrow();
         String jwt = jwtProvider.generateToken(user, 60 * 60 * 100L);
 
