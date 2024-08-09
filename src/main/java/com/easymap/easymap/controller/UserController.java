@@ -2,6 +2,8 @@ package com.easymap.easymap.controller;
 
 import com.easymap.easymap.dto.request.user.UserNicknameDuplicateRequestDTO;
 
+import com.easymap.easymap.dto.request.user.UserRequiredInfoRequestDto;
+import com.easymap.easymap.dto.response.ResponseDto;
 import com.easymap.easymap.dto.response.user.UserAdditionalInfoResponseDto;
 import com.easymap.easymap.dto.response.user.UserNicknameDuplicateResponseDTO;
 import com.easymap.easymap.service.UserService;
@@ -42,6 +44,16 @@ public class UserController {
         List<String> rst = userService.userAdditionalInfoCheck();
 
         return UserAdditionalInfoResponseDto.success(rst);
+    }
+
+    @PatchMapping("required")
+    public ResponseEntity<ResponseDto> patchUserRequiredInfo(@RequestBody UserRequiredInfoRequestDto userInfo){
+
+        boolean isChanged = userService.patchUserRequiredInfo(userInfo);
+        if (!isChanged) {
+            return ResponseDto.notModified();
+        }
+        return ResponseDto.success();
     }
 
 

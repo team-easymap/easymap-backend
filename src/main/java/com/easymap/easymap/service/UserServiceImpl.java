@@ -1,7 +1,7 @@
 package com.easymap.easymap.service;
 
-import com.easymap.easymap.config.CustomUserDetails;
 import com.easymap.easymap.dto.request.user.UserNicknameDuplicateRequestDTO;
+import com.easymap.easymap.dto.request.user.UserRequiredInfoRequestDto;
 import com.easymap.easymap.entity.User;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.UserRepository;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -46,11 +45,38 @@ public class UserServiceImpl implements UserService{
         return requireList;
     }
 
+    @Override
+    public boolean patchUserRequiredInfo(UserRequiredInfoRequestDto userInfo) {
+        String userEmail = findUserEmailFromJwt();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(
+                () -> new ResourceNotFoundException("User not found with email: " + userEmail)
+        );
+
+        boolean result = false;
+
+        if (userInfo.getGender() != null) {
+            user.setGender(userInfo.getGender());
+            result = true;
+        }
+        if (userInfo.getBirthdate() != null) {
+            user.setBirthdate(userInfo.getBirthdate());
+            result = true;
+        }
+        if (userInfo.getNickname() != null) {
+            user.setNickname(userInfo.getNickname());
+            result = true;
+        }
+        if (result) {
+            userRepository.save(user);
+        }
+        return result;
+    }
+
     /**
      * SecurityContextHolder에 저장된 유저 정보 추출
      * @return
      */
-    private String findUserEmailFromJwt() {
+    private static String findUserEmailFromJwt() {
         String userEmail = "default@default.com";
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
