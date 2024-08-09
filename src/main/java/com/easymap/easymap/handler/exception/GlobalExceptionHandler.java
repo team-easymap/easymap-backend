@@ -34,6 +34,11 @@ public class GlobalExceptionHandler {
         return ResponseDto.notFound();
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ResponseDto> handleResourceNotFoundException(ResourceNotFoundException e) {
+        return ResponseDto.notFound();
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseDto> handleGenericException(Exception e) {
         e.printStackTrace();
