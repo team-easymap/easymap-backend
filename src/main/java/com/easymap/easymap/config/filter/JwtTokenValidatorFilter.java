@@ -49,11 +49,13 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
             String email = jwtProvider.getEmail(token);
             String nickname = jwtProvider.getNickname(token);
             String userRole = jwtProvider.getUserRole(token);
+            String oauthType = jwtProvider.getUserOauthType(token);
 
             User user = new User();
             user.setEmail(email);
             user.setNickname(nickname);
             user.setUserRole(userRole);
+            user.setOauthType(oauthType);
 
             CustomUserDetails userDetails = new CustomUserDetails(user);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
