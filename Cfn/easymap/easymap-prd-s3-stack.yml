@@ -219,7 +219,8 @@ Resources:
             Principal:
               AWS: 
                 - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-lambda-role'
-                - !Sub 'arn:aws:iam::${AWS::AccountId}:group/MgmtDeveloperGroup'
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:user/Kim.minseok'
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:user/Gong.seungbae'
             Action: 
               - 's3:*'
             Resource:
