@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "categorys")
+@Table(name = "categories")
 @Entity
 public class Category {
     // 최상위 카테고리
