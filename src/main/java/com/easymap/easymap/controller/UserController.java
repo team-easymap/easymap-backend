@@ -20,7 +20,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("nickname-check")
+    @PostMapping("/nickname-check")
     public ResponseEntity<? super UserNicknameDuplicateResponseDTO> userNicknameDuplicateCheck(@RequestBody @Valid UserNicknameDuplicateRequestDTO userNicknameDuplicateDTO){
 
         //log.info(nicknameDuplicateDTO.getNickname());
@@ -31,9 +31,8 @@ public class UserController {
 
         return UserNicknameDuplicateResponseDTO.success(rst);
 
-
-
     }
+
 
 
 }
