@@ -45,6 +45,14 @@ public class JwtProvider {
         }
     }
 
+    public String getUserOauthType(String token) {
+        try {
+            return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("oauthType", String.class);
+        } catch (ExpiredJwtException e) {
+            throw new AuthenticationException("JWT expired");
+        }
+    }
+
     public Boolean isExpired(String token) {
         try {
             return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
@@ -60,6 +68,7 @@ public class JwtProvider {
                 .claim("email", user.getEmail())
                 .claim("nickname", user.getNickname())
                 .claim("user_role", user.getUserRole())
+                .claim("oauthType", user.getOauthType())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey)
