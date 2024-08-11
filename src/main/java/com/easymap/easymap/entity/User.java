@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -26,5 +27,8 @@ public class User {
     private LocalDateTime signupDate;
     private String userRole;
     private LocalDateTime deactivationDate;
+
+    @OneToOne(mappedBy = "user")
+    private ProfileImg profileImg;
 
 }
