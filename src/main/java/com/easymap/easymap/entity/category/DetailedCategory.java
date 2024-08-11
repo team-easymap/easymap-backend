@@ -1,4 +1,4 @@
-package com.easymap.easymap.entity;
+package com.easymap.easymap.entity.category;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,6 +22,6 @@ public class DetailedCategory {
     private String detailedCategoryName;
 
     @ManyToOne
-    @JoinColumn(name = "categoryId")
+    @JoinColumn(name = "category_id")
     private Category category;
 }

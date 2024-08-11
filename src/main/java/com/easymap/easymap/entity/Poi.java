@@ -1,5 +1,7 @@
 package com.easymap.easymap.entity;
 
+import com.easymap.easymap.entity.category.DetailedCategory;
+import com.easymap.easymap.entity.category.Tag;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -20,6 +22,7 @@ public class Poi {
     private Long poiId;
 
     @ManyToOne
+    @JoinColumn(name = "userId")
     private User user;
 
     private String poiName;
@@ -34,6 +37,7 @@ public class Poi {
     private Double poiLongitude;
 
     @ManyToOne
+    @JoinColumn(name = "detailedCategory_id")
     private DetailedCategory detailedCategory;
 
     @OneToMany
@@ -45,6 +49,9 @@ public class Poi {
     private String code; //법정동 코드
 
     private boolean sharable;
+
+    @OneToMany(mappedBy = "imgId")
+    private List<PoiImg> poiImgList;
 
 
 

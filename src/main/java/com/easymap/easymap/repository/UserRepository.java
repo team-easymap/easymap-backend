@@ -9,7 +9,9 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
-    @Query(value = "SELECT EXISTS(SELECT 1 FROM users WHERE nickname=:nickname)", nativeQuery = true)
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM users WHERE nickname=:nickname AND deactivation_date is null )", nativeQuery = true)
     boolean existsByNicknameNative(String nickname);
+
+    Optional<User> findUserByEmailAndDeactivationDateIsNull(String email);
 
 }
