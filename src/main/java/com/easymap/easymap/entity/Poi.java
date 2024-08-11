@@ -43,6 +43,13 @@ public class Poi {
     @OneToMany
     private List<Tag> tagList;
 
+    @Column(nullable = true)
+    private LocalDateTime deletedAt;
+
+    private String code; //법정동 코드
+
+    private boolean sharable;
+
     @OneToMany(mappedBy = "imgId")
     private List<PoiImg> poiImgList;
 
