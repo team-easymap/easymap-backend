@@ -23,6 +23,11 @@ public class ResponseDto {
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
+    public static ResponseEntity<ResponseDto> notModified() {
+        ResponseDto responseBody = new ResponseDto(ResponseCode.NOT_MODIFIED, ResponseMessage.NOT_MODIFIED);
+        return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(responseBody);
+    }
+
     public static ResponseEntity<ResponseDto> validationFail() {
         ResponseDto responseBody = new ResponseDto(ResponseCode.VALIDATION_FAIL, ResponseMessage.VALIDATION_FAIL);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
