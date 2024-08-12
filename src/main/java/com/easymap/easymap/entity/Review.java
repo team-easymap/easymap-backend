@@ -31,6 +31,6 @@ public class Review {
 
     private LocalDateTime deleteAt;
 
-    @OneToMany(mappedBy = "imgId")
+    @OneToMany(mappedBy = "review")
     List<ReviewImg> reviewImgList;
 }

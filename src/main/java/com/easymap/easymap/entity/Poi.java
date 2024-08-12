@@ -50,7 +50,7 @@ public class Poi {
 
     private boolean sharable;
 
-    @OneToMany(mappedBy = "imgId")
+    @OneToMany(mappedBy = "poi")
     private List<PoiImg> poiImgList;
 
 
