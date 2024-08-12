@@ -14,4 +14,6 @@ public interface ResponseCode {
 
     String INTERNAL_SERVER_ERROR = "ISE";
 
+    String NOT_MODIFIED = "NM";
+
 }

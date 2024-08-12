@@ -14,4 +14,6 @@ public interface ResponseMessage {
 
     String INTERNAL_SERVER_ERROR = "Internal server error occurred.";
 
+    String NOT_MODIFIED = "Resource not modified.";
+
 }
