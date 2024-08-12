@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.List;
 
+@ToString
 @Getter
 @Builder
 @AllArgsConstructor
@@ -20,10 +21,10 @@ public class Category {
 
     private String categoryName;
 
-    @OneToMany(mappedBy = "detailedCategoryId")
+    @OneToMany(mappedBy = "category")
     private List<DetailedCategory> detailedCategoryList;
 
-    @OneToMany(mappedBy = "tagId")
+    @OneToMany(mappedBy = "category")
     private List<Tag> tagList;
 
 
