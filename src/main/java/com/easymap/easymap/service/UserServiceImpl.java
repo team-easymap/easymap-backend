@@ -3,6 +3,7 @@ package com.easymap.easymap.service;
 import com.easymap.easymap.dto.request.user.UserNicknameDuplicateRequestDTO;
 import com.easymap.easymap.dto.request.user.UserRequiredInfoRequestDto;
 import com.easymap.easymap.entity.User;
+import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
