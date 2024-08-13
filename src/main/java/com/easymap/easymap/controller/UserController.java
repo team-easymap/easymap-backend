@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -57,8 +58,13 @@ public class UserController {
         return UserAdditionalInfoResponseDto.success(rst);
     }
 
-    @PatchMapping("required")
-    public ResponseEntity<ResponseDto> patchUserRequiredInfo(@RequestBody UserRequiredInfoRequestDto userInfo){
+    @PatchMapping("/required")
+    public ResponseEntity<ResponseDto> patchUserRequiredInfo(
+            @RequestPart("userInfo") UserRequiredInfoRequestDto userInfo,
+            @RequestPart(value = "profileImage") MultipartFile profileImage) {
+
+        // DTO에 프로필 이미지 설정
+        userInfo.setProfileImage(profileImage);
 
         boolean isChanged = userService.patchUserRequiredInfo(userInfo);
         if (!isChanged) {
