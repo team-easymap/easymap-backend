@@ -3,6 +3,7 @@ package com.easymap.easymap.dto.request.user;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -10,8 +11,9 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 public class UserRequiredInfoRequestDto {
-    // TODO S3 연결 후 이미지 포함해야함
+
     private Character gender;
     private LocalDate birthdate;
     private String nickname;
+    private MultipartFile profileImage;
 }
