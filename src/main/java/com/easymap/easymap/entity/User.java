@@ -26,8 +26,7 @@ public class User {
     private LocalDateTime signupDate;
     private String userRole;
     private LocalDateTime deactivationDate;
-
-    @OneToOne(mappedBy = "user")
-    private ProfileImg profileImg;
+    @Column(name = "profile_s3_url")
+    private String profileS3Url;
 
 }

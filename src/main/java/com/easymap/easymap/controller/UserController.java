@@ -63,6 +63,7 @@ public class UserController {
             @RequestPart("userInfo") UserRequiredInfoRequestDto userInfo,
             @RequestPart(value = "profileImage") MultipartFile profileImage) {
 
+        log.info("required");
         // DTO에 프로필 이미지 설정
         userInfo.setProfileImage(profileImage);
 

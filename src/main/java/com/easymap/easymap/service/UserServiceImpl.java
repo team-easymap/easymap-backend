@@ -1,10 +1,12 @@
 package com.easymap.easymap.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.easymap.easymap.dto.request.user.UserNicknameDuplicateRequestDTO;
 import com.easymap.easymap.dto.request.user.UserRequiredInfoRequestDto;
 import com.easymap.easymap.entity.User;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.UserRepository;
+import com.easymap.easymap.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +27,9 @@ import java.util.List;
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
-
+    private final AmazonS3Client amazonS3Client;
+    private final S3Service s3Service;
+    private final String bucketName = "easymap-prd-local-images";
 
     @Override
     public boolean userNicknameDuplicateCheck(UserNicknameDuplicateRequestDTO userNicknameDuplicateRequestDTO) {
@@ -83,6 +87,12 @@ public class UserServiceImpl implements UserService{
             user.setNickname(userInfo.getNickname());
             result = true;
         }
+        if (userInfo.getProfileImage() != null && !userInfo.getProfileImage().isEmpty()) {
+            String profileImageUrl = s3Service.uploadProfileImageToS3(userInfo.getProfileImage());
+            user.setProfileS3Url(profileImageUrl); // 프로필 이미지 URL 저장
+            result = true;
+        }
+
         if (result) {
             userRepository.save(user);
         }
