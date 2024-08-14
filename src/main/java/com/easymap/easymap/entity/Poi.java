@@ -1,5 +1,6 @@
 package com.easymap.easymap.entity;
 
+import com.easymap.easymap.dto.request.poi.PoiUpdateRequestDTO;
 import com.easymap.easymap.entity.category.DetailedCategory;
 import com.easymap.easymap.entity.category.Tag;
 import jakarta.persistence.*;
@@ -55,4 +56,12 @@ public class Poi {
 
 
 
+    public void update(PoiUpdateRequestDTO poiUpdateRequestDTO, DetailedCategory detailedCategory, List<Tag> tagList, List<PoiImg> poiImgList) {
+        this.poiAddress = poiUpdateRequestDTO.getPoiAddress();
+        this.detailedCategory = detailedCategory;
+        this.tagList = tagList;
+        this.poiImgList = poiImgList;
+
+
+    }
 }
