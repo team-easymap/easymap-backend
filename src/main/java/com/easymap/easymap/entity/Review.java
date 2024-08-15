@@ -1,5 +1,6 @@
 package com.easymap.easymap.entity;
 
+import com.easymap.easymap.dto.request.review.ReviewUpdateRequestDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
@@ -52,5 +53,13 @@ public class Review {
                 .createAt(review.getCreateAt())
                 .imgsOnReview(review.getReviewImgList().stream().map(img-> ReviewImg.mapToDTO(img)).collect(Collectors.toList()))
                 .build();
+    }
+
+    public void update(ReviewUpdateRequestDTO reviewUpdateRequestDTO, List<ReviewImg> imgList) {
+        this.score = reviewUpdateRequestDTO.getScore();
+        this.reviewText = reviewUpdateRequestDTO.getReviewText();
+        this.reviewImgList = imgList;
+
+
     }
 }
