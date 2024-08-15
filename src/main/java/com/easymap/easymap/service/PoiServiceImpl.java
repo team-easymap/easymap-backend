@@ -2,8 +2,13 @@ package com.easymap.easymap.service;
 
 import com.easymap.easymap.dto.request.poi.PoiAddRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiUpdateRequestDTO;
+import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
+import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
+import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
+import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
 import com.easymap.easymap.entity.Poi;
 import com.easymap.easymap.entity.PoiImg;
+import com.easymap.easymap.entity.Review;
 import com.easymap.easymap.entity.User;
 import com.easymap.easymap.entity.category.Category;
 import com.easymap.easymap.entity.category.DetailedCategory;
@@ -14,6 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.LocalDateTime;
@@ -30,9 +36,13 @@ public class PoiServiceImpl implements PoiService{
 
     private final UserRepository userRepository;
 
+    private final CategoryRepository categoryRepository;
+
     private final DetailedCategoryRepository detailedCategoryRepository;
 
     private final TagRepository tagRepository;
+
+    private final ReviewRepository reviewRepository;
 
     @Override
     public Long addPoi(PoiAddRequestDTO poiAddRequestDTO, String username) {
@@ -56,7 +66,7 @@ public class PoiServiceImpl implements PoiService{
                 .poiLongitude(poiAddRequestDTO.getPoiLongitude())
                 .poiRecentUpdateDate(LocalDateTime.now())
                 .code(poiAddRequestDTO.getCode()) // 일단 프론트에서 받아오는 걸로
-                .sharable(false)
+                .sharable(true)
                 .tagList(tagList)
                 .poiImgList(poiImgList)
                 .build();
@@ -85,5 +95,61 @@ public class PoiServiceImpl implements PoiService{
 
         poiRepository.save(poi);
 
+    }
+
+    @Transactional
+    @Override
+    public List<CategoryResponseDTO> getCategory() {
+
+        List<Category> all = categoryRepository.findAll();
+
+        return all.stream().map(Category::mapToDTO).collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Override
+    public PoiResponseDTO findPoiById(Long poiId) {
+        Poi poi = poiRepository.findById(poiId).orElseThrow(() -> new ResourceNotFoundException("no poi : " + poiId));
+
+//        if(!poi.isSharable()){
+//            throw new
+//        }
+        // TODO 삭제된 Poi 처리
+//        if (poi.getDeletedAt()!=null){
+//            throw new
+//        }
+
+
+        return Poi.mapToDTO(poi);
+    }
+
+    @Override
+    public Long addReview(Long poiId, ReviewPostRequestDTO reviewPostRequestDTO, String username) {
+        User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no user such as :" + username));
+
+        Poi poi = poiRepository.findPoiByPoiIdAndDeletedAtIsNullAndSharableIsTrue(poiId).orElseThrow(() -> new ResourceNotFoundException("no public poi such as : " + poiId));
+
+        Review review = Review.builder()
+                .user(user)
+                .poi(poi)
+                .score(reviewPostRequestDTO.getScore())
+                .reviewText(reviewPostRequestDTO.getReviewText())
+                .reviewImgList(null) // TODO Img 로직
+                .createAt(LocalDateTime.now())
+                .build();
+
+        Review save = reviewRepository.save(review);
+        return save.getReviewId();
+
+    }
+
+    @Override
+    public List<ReviewResponseDTO> getReviews(Long poiId) {
+
+        List<Review> reviews = reviewRepository.findReviewsByPoi_PoiId(poiId);
+
+        List<ReviewResponseDTO> collect = reviews.stream().map(Review::mapToDTO).collect(Collectors.toList());
+
+        return collect;
     }
 }

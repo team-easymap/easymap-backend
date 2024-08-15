@@ -17,9 +17,9 @@ import java.util.List;
 @NoArgsConstructor
 public class PoiUpdateRequestDTO {
 
-//    @NotBlank
-//    @JsonProperty("poi_name")
-//    private String poiName;
+    @NotBlank
+    @JsonProperty("poi_name")
+    private String poiName;
 
 
     @JsonProperty("poi_address")
@@ -40,10 +40,10 @@ public class PoiUpdateRequestDTO {
 //    @Max(180)
 //    @JsonProperty("lng")
 //    private Double poiLongitude;
-
-    @NotNull
-    @JsonProperty("poi_code")
-    private String code;
+//
+//    @NotNull
+//    @JsonProperty("poi_code")
+//    private String code;
 
     @JsonProperty("tag_list")
     private List<TagRequestDTO> tagList;
