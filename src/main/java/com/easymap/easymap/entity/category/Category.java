@@ -1,9 +1,12 @@
 package com.easymap.easymap.entity.category;
 
+import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ToString
 @Getter
@@ -22,10 +25,29 @@ public class Category {
     private String categoryName;
 
     @OneToMany(mappedBy = "category")
+    @BatchSize(size = 10)
     private List<DetailedCategory> detailedCategoryList;
 
+    @BatchSize(size = 10)
     @OneToMany(mappedBy = "category")
     private List<Tag> tagList;
+
+
+    public static CategoryResponseDTO mapToDTO(Category category){
+        return CategoryResponseDTO.builder()
+                .categoryId(category.getCategoryId())
+                .categoryName(category.categoryName)
+                .detailedCatgoryList(
+                        category.getDetailedCategoryList().stream()
+                                .map(DetailedCategory::mapToDTO)
+                                .collect(Collectors.toList()))
+                .tagResponseDTOList(
+                        category.getTagList().stream()
+                                .map(Tag::mapToDTO)
+                                .collect(Collectors.toList()))
+                .build();
+
+    }
 
 
 }

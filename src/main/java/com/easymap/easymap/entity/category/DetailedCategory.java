@@ -1,5 +1,6 @@
 package com.easymap.easymap.entity.category;
 
+import com.easymap.easymap.dto.response.category.DetailedCategoryResponseDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,4 +25,11 @@ public class DetailedCategory {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    public static DetailedCategoryResponseDTO mapToDTO(DetailedCategory detailedCategory){
+        return DetailedCategoryResponseDTO.builder()
+                .detailedCategoryId(detailedCategory.getDetailedCategoryId())
+                .detailedCategoryName(detailedCategory.getDetailedCategoryName())
+                .build();
+    }
 }

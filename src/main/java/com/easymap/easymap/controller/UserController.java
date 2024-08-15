@@ -1,10 +1,14 @@
 package com.easymap.easymap.controller;
 
+import com.easymap.easymap.dto.request.review.ReviewUpdateRequestDTO;
 import com.easymap.easymap.dto.request.user.UserNicknameDuplicateRequestDTO;
 
 import com.easymap.easymap.dto.request.user.UserRequiredInfoRequestDto;
 import com.easymap.easymap.dto.response.ResponseDto;
 import com.easymap.easymap.dto.response.s3.S3PresignedUrlResponseDto;
+import com.easymap.easymap.dto.response.review.ReviewGetResponseDTO;
+import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
+import com.easymap.easymap.dto.response.user.MyReviewGetResponseDTO;
 import com.easymap.easymap.dto.response.user.UserAdditionalInfoResponseDto;
 import com.easymap.easymap.dto.response.user.UserNicknameDuplicateResponseDTO;
 import com.easymap.easymap.handler.exception.AuthenticationException;
@@ -74,6 +78,27 @@ public class UserController {
         return ResponseDto.success();
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/review")
+    public ResponseEntity<?> getMyReviews(@AuthenticationPrincipal UserDetails userDetails){
+        List<ReviewResponseDTO> reviewResponseDTOList = userService.getMyReviews(userDetails.getUsername());
+
+        return MyReviewGetResponseDTO.success(reviewResponseDTOList);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/review/{reviewId}")
+    public ResponseEntity<?> updateReview(@PathVariable(value = "reviewId")Long reviewId, @RequestBody ReviewUpdateRequestDTO reviewUpdateRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
+        userService.updateMyReview(reviewId, reviewUpdateRequestDTO, userDetails.getUsername());
+        return ResponseDto.success();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/review/{reviewId}")
+    public ResponseEntity<?> deleteReview(@PathVariable(value = "reviewId")Long reviewId, @AuthenticationPrincipal UserDetails userDetails){
+        userService.deleteMyReview(reviewId, userDetails.getUsername());
+        return ResponseDto.success();
+    }
 
 
 }
