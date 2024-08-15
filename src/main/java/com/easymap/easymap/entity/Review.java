@@ -1,13 +1,18 @@
 package com.easymap.easymap.entity;
 
+import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "reviews")
 @Entity
 public class Review {
@@ -35,4 +40,17 @@ public class Review {
 
     @OneToMany(mappedBy = "review")
     List<ReviewImg> reviewImgList;
+
+    public static ReviewResponseDTO mapToDTO(Review review){
+        return ReviewResponseDTO.builder()
+                .reviewId(review.getReviewId())
+                .userId(review.getUser().getUserId())
+                .nickname(review.getUser().getNickname())
+                .poiId(review.getPoi().getPoiId())
+                .score(review.getScore())
+                .reviewText(review.getReviewText())
+                .createAt(review.getCreateAt())
+                .imgsOnReview(review.getReviewImgList().stream().map(img-> ReviewImg.mapToDTO(img)).collect(Collectors.toList()))
+                .build();
+    }
 }
