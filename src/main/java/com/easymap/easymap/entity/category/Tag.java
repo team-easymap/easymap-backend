@@ -1,5 +1,6 @@
 package com.easymap.easymap.entity.category;
 
+import com.easymap.easymap.dto.response.category.TagResponseDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,4 +26,13 @@ public class Tag {
     private String tagName;
 
     private Integer tagAccessibilityPoint;
+
+    public static TagResponseDTO mapToDTO(Tag tag){
+        return TagResponseDTO.builder()
+                .tagId(tag.getTagId())
+                .tagName(tag.getTagName())
+                .tagAccessibilityPoint(tag.getTagAccessibilityPoint())
+                .build();
+    }
+
 }
