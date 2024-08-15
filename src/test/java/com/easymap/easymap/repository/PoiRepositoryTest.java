@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -48,6 +50,7 @@ class PoiRepositoryTest {
                 .poiLongitude(Double.valueOf(22.2222))
                 .poiName("우리집")
                 .detailedCategory(detailedCategory)
+                .poiRecentUpdateDate(LocalDateTime.now())
                 .tagList(collect)
                 .sharable(false)
                 .code("0000030")
@@ -62,4 +65,16 @@ class PoiRepositoryTest {
 
         //then
     }
+
+    @Transactional
+    @Test
+    public void 읽기테스트(){
+        List<Poi> all = poiRepository.findAll();
+
+        log.info(all.get(0).toString());
+        all.get(0).getTagList().forEach(t-> log.info(t.getTagName()));
+
+    }
+
+
 }
