@@ -1,11 +1,9 @@
 package com.easymap.easymap.service.s3;
 
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import com.amazonaws.HttpMethod;
 
 public interface S3Service {
 
-    String uploadProfileImageToS3(MultipartFile profileImage);
-    File convertMultipartFileToFile(MultipartFile file);
+    String generatePresignedUrl(String fileName, HttpMethod method);
 }

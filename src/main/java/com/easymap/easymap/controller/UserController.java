@@ -4,10 +4,12 @@ import com.easymap.easymap.dto.request.user.UserNicknameDuplicateRequestDTO;
 
 import com.easymap.easymap.dto.request.user.UserRequiredInfoRequestDto;
 import com.easymap.easymap.dto.response.ResponseDto;
+import com.easymap.easymap.dto.response.s3.S3PresignedUrlResponseDto;
 import com.easymap.easymap.dto.response.user.UserAdditionalInfoResponseDto;
 import com.easymap.easymap.dto.response.user.UserNicknameDuplicateResponseDTO;
 import com.easymap.easymap.handler.exception.AuthenticationException;
 import com.easymap.easymap.service.UserService;
+import com.easymap.easymap.service.s3.S3Service;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,19 +62,18 @@ public class UserController {
 
     @PatchMapping("/required")
     public ResponseEntity<ResponseDto> patchUserRequiredInfo(
-            @RequestPart("userInfo") UserRequiredInfoRequestDto userInfo,
-            @RequestPart(value = "profileImage") MultipartFile profileImage) {
+            @RequestBody UserRequiredInfoRequestDto userInfo) {
 
-        log.info("required");
-        // DTO에 프로필 이미지 설정
-        userInfo.setProfileImage(profileImage);
+        log.info("Processing request to update user information");
 
+        // 여전히 userService를 통해 유저 정보를 갱신
         boolean isChanged = userService.patchUserRequiredInfo(userInfo);
         if (!isChanged) {
             return ResponseDto.notModified();
         }
         return ResponseDto.success();
     }
+
 
 
 }

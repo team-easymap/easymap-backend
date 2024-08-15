@@ -1,56 +1,47 @@
 package com.easymap.easymap.service.s3;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.easymap.easymap.repository.UserRepository;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.UUID;
+import java.net.URL;
+import java.util.Date;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class S3ServiceImpl implements S3Service{
 
     private final AmazonS3 amazonS3Client;
-    private final String bucketName = "your-s3-bucket-name"; // S3 버킷 이름을 지정
+    private final String bucketName;
 
-    @Override
-    public String uploadProfileImageToS3(MultipartFile profileImage) {
-        String fileName = UUID.randomUUID() + "_" + profileImage.getOriginalFilename();
-        File file = convertMultipartFileToFile(profileImage);
-        String fileUrl = "";
-
-        try {
-            amazonS3Client.putObject(new PutObjectRequest(bucketName, fileName, file)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
-            fileUrl = amazonS3Client.getUrl(bucketName, fileName).toString();
-        } catch (Exception e) {
-            log.error("Failed to upload file to S3", e);
-        } finally {
-            if (file != null) {
-                file.delete();
-            }
-        }
-
-        return fileUrl;
+    public S3ServiceImpl(AmazonS3 amazonS3Client, @Value("${aws.s3.bucket-name}") String bucketName) {
+        this.amazonS3Client = amazonS3Client;
+        this.bucketName = bucketName;
     }
 
-    @Override
-    public File convertMultipartFileToFile(MultipartFile file) {
-        File convertedFile = new File(file.getOriginalFilename());
-        try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
-            fos.write(file.getBytes());
-        } catch (IOException e) {
-            log.error("Error converting multipart file to file", e);
+    public String generatePresignedUrl(String fileName, HttpMethod method) {
+        // 1시간 동안 유효한 Presigned URL 생성
+        Date expiration = new Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += 1000 * 60 * 60; // 1시간
+        expiration.setTime(expTimeMillis);
+
+        // 요청 메서드를 지정하여 Presigned URL 생성
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, fileName)
+                .withMethod(method)  // GET, PUT, DELETE 등 메서드 지정
+                .withExpiration(expiration);
+
+        // 필요시 Content-Type도 설정
+        if (method == HttpMethod.PUT) {
+            generatePresignedUrlRequest.withContentType("image/png");
         }
-        return convertedFile;
+
+        URL url = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
+        return url.toString();
     }
+
 }

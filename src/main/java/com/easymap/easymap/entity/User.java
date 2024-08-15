@@ -26,7 +26,7 @@ public class User {
     private LocalDateTime signupDate;
     private String userRole;
     private LocalDateTime deactivationDate;
-    @Column(name = "profile_s3_url")
-    private String profileS3Url;
+    @Column(name = "profile_s3_key")
+    private String profileS3Key;
 
 }
