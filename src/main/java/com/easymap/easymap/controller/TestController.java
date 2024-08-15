@@ -1,6 +1,5 @@
 package com.easymap.easymap.controller;
 
-import com.easymap.easymap.dto.response.ResponseDto;
 import com.easymap.easymap.dto.response.TestResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,6 @@
 package com.easymap.easymap.dto.response.user;
 
 import com.easymap.easymap.dto.response.ResponseDto;
-import com.easymap.easymap.dto.response.TestResponseDto;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

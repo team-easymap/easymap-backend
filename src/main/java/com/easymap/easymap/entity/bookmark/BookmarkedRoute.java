@@ -4,7 +4,6 @@ import com.easymap.easymap.entity.Poi;
 import com.easymap.easymap.entity.User;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 import java.time.LocalDateTime;
 

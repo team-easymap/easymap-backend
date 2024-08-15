@@ -34,9 +34,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
-
     private final ReviewRepository reviewRepository;
-
 
     @Override
     public boolean userNicknameDuplicateCheck(UserNicknameDuplicateRequestDTO userNicknameDuplicateRequestDTO) {
@@ -75,6 +73,8 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public boolean patchUserRequiredInfo(UserRequiredInfoRequestDto userInfo) {
+
+        log.info("Received User Info: {}", userInfo);
         String userEmail = findUserEmailFromJwt();
         User user = userRepository.findByEmail(userEmail).orElseThrow(
                 () -> new ResourceNotFoundException("User not found with email: " + userEmail)
@@ -94,6 +94,11 @@ public class UserServiceImpl implements UserService{
             user.setNickname(userInfo.getNickname());
             result = true;
         }
+        if (userInfo.getProfileS3Key() != null) {
+            user.setProfileS3Key(userInfo.getProfileS3Key()); // 프로필 이미지 URL 저장
+            result = true;
+        }
+
         if (result) {
             userRepository.save(user);
         }
