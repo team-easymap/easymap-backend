@@ -62,7 +62,7 @@ public class PoiController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PatchMapping(value="/{poiId}/update", consumes= MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value="/{poiId}/update")
     public ResponseEntity<?> updatePoi(@PathVariable(value = "poiId") Long poiId, @RequestBody @Valid PoiUpdateRequestDTO poiUpdateRequestDTO){
 
         log.info(poiUpdateRequestDTO.toString());

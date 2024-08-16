@@ -81,6 +81,7 @@ public class PoiServiceImpl implements PoiService{
         return save.getPoiId();
     }
 
+    @Transactional
     @Override
     public void updatePoi(Long poiId, PoiUpdateRequestDTO poiUpdateRequestDTO) {
         DetailedCategory detailedCategory = detailedCategoryRepository.findById(poiUpdateRequestDTO.getDetailedCategoryId()).orElseThrow(() -> new ResourceNotFoundException("no such detailed category"));
@@ -88,11 +89,10 @@ public class PoiServiceImpl implements PoiService{
         List<Tag> tagList = poiUpdateRequestDTO.getTagList().stream().map(tag -> tagRepository.findById(tag.getTagId()).orElseThrow(() -> new ResourceNotFoundException("no such tag")))
                 .collect(Collectors.toList());
 
-        // TODO poiImgList 나중에 추가 구현
-        List<PoiImg> poiImgList = null;
 
         Poi poi = poiRepository.findById(poiId).orElseThrow(()-> new ResourceNotFoundException("no such Poi :"+ poiId));
 
+        List<PoiImg> poiImgList = poiUpdateRequestDTO.getImages().stream().map(s3key-> PoiImg.builder().poi(poi).s3Key(s3key.getS3Key()).build()).collect(Collectors.toList());
 
         poi.update(poiUpdateRequestDTO, detailedCategory, tagList, poiImgList);
 

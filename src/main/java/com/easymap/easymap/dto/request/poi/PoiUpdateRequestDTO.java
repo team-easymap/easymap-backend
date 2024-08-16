@@ -50,6 +50,6 @@ public class PoiUpdateRequestDTO {
     @JsonProperty("tag_list")
     private List<TagRequestDTO> tagList;
 
-    private List<String> s3KeyList;
+    private List<PoiImgRequestDTO> images;
 
 }

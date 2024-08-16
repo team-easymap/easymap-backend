@@ -71,8 +71,11 @@ public class Poi {
         this.poiName = poiUpdateRequestDTO.getPoiName();
         this.poiAddress = poiUpdateRequestDTO.getPoiAddress();
         this.detailedCategory = detailedCategory;
-        this.tagList = tagList;
-        this.poiImgList = poiImgList;
+        this.tagList.clear();
+        this.tagList.addAll(tagList);
+        this.poiImgList.clear();
+        this.poiImgList.addAll(poiImgList);
+
 
 
     }
