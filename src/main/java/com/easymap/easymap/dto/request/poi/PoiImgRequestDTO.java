@@ -1,4 +1,4 @@
-package com.easymap.easymap.dto.response.poi;
+package com.easymap.easymap.dto.request.poi;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PoiImgResponseDTO {
-
-    private Long imgId;
+public class PoiImgRequestDTO {
 
     private String s3Key;
 }

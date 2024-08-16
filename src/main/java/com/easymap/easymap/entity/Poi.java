@@ -45,7 +45,12 @@ public class Poi {
     @JoinColumn(name = "detailedCategory_id")
     private DetailedCategory detailedCategory;
 
-    @OneToMany
+    @ManyToMany
+    @JoinTable(
+            name = "pois_tag_list",
+            joinColumns = @JoinColumn(name = "poi_poi_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_list_tag_id")
+    )
     private List<Tag> tagList;
 
     @Column(nullable = true)
@@ -55,7 +60,7 @@ public class Poi {
 
     private boolean sharable;
 
-    @OneToMany(mappedBy = "poi")
+    @OneToMany(mappedBy = "poi", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PoiImg> poiImgList;
 
     @OneToMany(mappedBy = "poi")
@@ -88,5 +93,9 @@ public class Poi {
                 .poiPointCount(poi.getReviewList().stream().count())
                 .poiPointAvg(poi.getReviewList().stream().mapToLong(review->review.getScore()).sum())
                 .build();
+    }
+
+    public void setPoiImgList(List<PoiImg> poiImgList){
+        this.poiImgList = poiImgList;
     }
 }

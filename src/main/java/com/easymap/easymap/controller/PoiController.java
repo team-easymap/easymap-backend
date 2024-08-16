@@ -49,7 +49,7 @@ public class PoiController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping(value="/add", consumes= MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value="/add")
     public ResponseEntity<?> addPoi(@RequestBody @Valid PoiAddRequestDTO poiAddRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
         if(userDetails == null){
             throw new AuthenticationException("not authenticated");

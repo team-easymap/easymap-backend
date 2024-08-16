@@ -44,6 +44,7 @@ public class PoiServiceImpl implements PoiService{
 
     private final ReviewRepository reviewRepository;
 
+    @Transactional
     @Override
     public Long addPoi(PoiAddRequestDTO poiAddRequestDTO, String username) {
 
@@ -55,7 +56,7 @@ public class PoiServiceImpl implements PoiService{
         List<Tag> tagList = poiAddRequestDTO.getTagList().stream().map(tag -> tagRepository.findById(tag.getTagId()).orElseThrow(() -> new ResourceNotFoundException("no such tag")))
                 .collect(Collectors.toList());
 
-        List<PoiImg> poiImgList = null;
+
 
         Poi poi = Poi.builder()
                 .user(user)
@@ -68,10 +69,12 @@ public class PoiServiceImpl implements PoiService{
                 .code(poiAddRequestDTO.getCode()) // 일단 프론트에서 받아오는 걸로
                 .sharable(true)
                 .tagList(tagList)
-                .poiImgList(poiImgList)
                 .build();
 
-        // TODO 파일 처리 로직 구현
+        // 빌더에서 참조관계 설정 안되어서 poi 생성 후 세터 주입
+        List<PoiImg> poiImgs = poiAddRequestDTO.getImages().stream().map(s3key -> PoiImg.builder().poi(poi).s3Key(s3key.getS3Key()).build()).collect(Collectors.toList());
+        poi.setPoiImgList(poiImgs);
+
         
         Poi save = poiRepository.save(poi);
 

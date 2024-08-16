@@ -10,6 +10,8 @@ import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
+
 @ToString
 @Getter
 @Builder
@@ -48,6 +50,6 @@ public class PoiUpdateRequestDTO {
     @JsonProperty("tag_list")
     private List<TagRequestDTO> tagList;
 
-    private List<MultipartFile> fileList;
+    private List<String> s3KeyList;
 
 }
