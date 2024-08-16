@@ -58,7 +58,8 @@ public class Review {
     public void update(ReviewUpdateRequestDTO reviewUpdateRequestDTO, List<ReviewImg> imgList) {
         this.score = reviewUpdateRequestDTO.getScore();
         this.reviewText = reviewUpdateRequestDTO.getReviewText();
-        this.reviewImgList = imgList;
+        this.reviewImgList.clear();
+        this.reviewImgList.addAll(imgList);
 
 
     }

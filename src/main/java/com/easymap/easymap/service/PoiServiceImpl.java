@@ -123,7 +123,7 @@ public class PoiServiceImpl implements PoiService{
         return Poi.mapToDTO(poi);
     }
 
-    @Transactional
+
     @Override
     public Long addReview(Long poiId, ReviewPostRequestDTO reviewPostRequestDTO, String username) {
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no user such as :" + username));
