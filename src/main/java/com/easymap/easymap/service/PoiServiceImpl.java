@@ -6,10 +6,7 @@ import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
 import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
-import com.easymap.easymap.entity.Poi;
-import com.easymap.easymap.entity.PoiImg;
-import com.easymap.easymap.entity.Review;
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.entity.*;
 import com.easymap.easymap.entity.category.Category;
 import com.easymap.easymap.entity.category.DetailedCategory;
 import com.easymap.easymap.entity.category.Tag;
@@ -126,6 +123,7 @@ public class PoiServiceImpl implements PoiService{
         return Poi.mapToDTO(poi);
     }
 
+    @Transactional
     @Override
     public Long addReview(Long poiId, ReviewPostRequestDTO reviewPostRequestDTO, String username) {
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no user such as :" + username));
@@ -137,9 +135,11 @@ public class PoiServiceImpl implements PoiService{
                 .poi(poi)
                 .score(reviewPostRequestDTO.getScore())
                 .reviewText(reviewPostRequestDTO.getReviewText())
-                .reviewImgList(null) // TODO Img 로직
                 .createAt(LocalDateTime.now())
                 .build();
+
+        List<ReviewImg> reviewImgs = reviewPostRequestDTO.getImages().stream().map(dto -> ReviewImg.builder().review(review).s3Key(dto.getS3Key()).build()).collect(Collectors.toList());
+        review.setReviewImgList(reviewImgs);
 
         Review save = reviewRepository.save(review);
         return save.getReviewId();

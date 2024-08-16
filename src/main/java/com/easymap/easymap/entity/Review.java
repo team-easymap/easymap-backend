@@ -39,7 +39,7 @@ public class Review {
 
     private LocalDateTime deleteAt;
 
-    @OneToMany(mappedBy = "review")
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     List<ReviewImg> reviewImgList;
 
     public static ReviewResponseDTO mapToDTO(Review review){
@@ -61,5 +61,9 @@ public class Review {
         this.reviewImgList = imgList;
 
 
+    }
+
+    public void setReviewImgList(List<ReviewImg> reviewImgList){
+        this.reviewImgList = reviewImgList;
     }
 }

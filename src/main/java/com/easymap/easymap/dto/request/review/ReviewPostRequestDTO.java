@@ -28,6 +28,5 @@ public class ReviewPostRequestDTO {
     @JsonProperty("review_text")
     private String reviewText;
 
-    @JsonProperty("images")
-    private List<MultipartFile> imageList;
+    private List<ReviewImgRequestDTO> images;
 }
