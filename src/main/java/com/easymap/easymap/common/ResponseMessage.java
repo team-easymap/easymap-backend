@@ -16,4 +16,6 @@ public interface ResponseMessage {
 
     String NOT_MODIFIED = "Resource not modified.";
 
+    String USER_DEACTIVATED = "User deactivated.";
+
 }

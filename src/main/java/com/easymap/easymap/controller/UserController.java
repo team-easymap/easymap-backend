@@ -1,6 +1,7 @@
 package com.easymap.easymap.controller;
 
 import com.easymap.easymap.dto.request.review.ReviewUpdateRequestDTO;
+import com.easymap.easymap.dto.request.user.LoadUserStatusRequestDto;
 import com.easymap.easymap.dto.request.user.UserNicknameDuplicateRequestDTO;
 
 import com.easymap.easymap.dto.request.user.UserRequiredInfoRequestDto;
@@ -8,9 +9,11 @@ import com.easymap.easymap.dto.response.ResponseDto;
 import com.easymap.easymap.dto.response.s3.S3PresignedUrlResponseDto;
 import com.easymap.easymap.dto.response.review.ReviewGetResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
+import com.easymap.easymap.dto.response.user.LoadUserStatusResponseDto;
 import com.easymap.easymap.dto.response.user.MyReviewGetResponseDTO;
 import com.easymap.easymap.dto.response.user.UserAdditionalInfoResponseDto;
 import com.easymap.easymap.dto.response.user.UserNicknameDuplicateResponseDTO;
+import com.easymap.easymap.entity.User;
 import com.easymap.easymap.handler.exception.AuthenticationException;
 import com.easymap.easymap.service.UserService;
 import com.easymap.easymap.service.s3.S3Service;
@@ -41,6 +44,18 @@ public class UserController {
 
         return UserNicknameDuplicateResponseDTO.success(rst);
 
+    }
+
+    @PostMapping("/info")
+    public ResponseEntity<? super LoadUserStatusResponseDto> loadUserStatus(@RequestBody LoadUserStatusRequestDto loadUserStatusRequestDto, @AuthenticationPrincipal UserDetails userDetails){
+
+        Long userId = loadUserStatusRequestDto.getUserId();
+        User user = userService.loadUserStatus(userId, userDetails);
+        if(user.getDeactivationDate() != null){
+            return LoadUserStatusResponseDto.userDeactivated();
+        }
+
+        return LoadUserStatusResponseDto.success(user);
     }
 
     @PreAuthorize("isAuthenticated()")

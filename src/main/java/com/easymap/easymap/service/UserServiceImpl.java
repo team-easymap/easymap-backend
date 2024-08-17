@@ -43,6 +43,31 @@ public class UserServiceImpl implements UserService{
 
     }
 
+    /**
+     * userID가 null인 경우 자기 정보 조회, 타인 정보인 경우 userId, profile_s3_key, nickname만 노출
+     */
+    @Override
+    public User loadUserStatus(Long userId, UserDetails userDetails) {
+        User user;
+        log.info("userId:{}", userId);
+        if(userId == null){
+            user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(
+                    () -> new ResourceNotFoundException("no active user :" + userDetails.getUsername())
+            );
+        }
+        else{
+            user = userRepository.findUserByUserIdAndDeactivationDateIsNull(userId).orElseThrow(
+                    () -> new ResourceNotFoundException("no active user :" + userDetails.getUsername())
+            );
+            user.setEmail(null);
+            user.setGender(null);
+            user.setBirthdate(null);
+            user.setOauthType(null);
+            user.setSignupDate(null);
+        }
+        return user;
+    }
+
     @Override
     public void userWithdraw(UserDetails userDetails) throws ResourceNotFoundException {
         Optional<User> foundUser = userRepository.findUserByEmailAndDeactivationDateIsNull(userDetails.getUsername());
@@ -170,6 +195,8 @@ public class UserServiceImpl implements UserService{
         log.info("duplicated?:{}", userRepository.existsByNicknameNative(nickname));
         return userRepository.existsByNicknameNative(nickname);
     }
+
+
 
     @Override
     public void recoverData(User user) {

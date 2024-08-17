@@ -16,4 +16,6 @@ public interface ResponseCode {
 
     String NOT_MODIFIED = "NM";
 
+    String USER_DEACTIVATED = "UD";
+
 }
