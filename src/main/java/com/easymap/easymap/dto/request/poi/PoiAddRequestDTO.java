@@ -49,6 +49,6 @@ public class PoiAddRequestDTO {
     @JsonProperty("tag_list")
     private List<TagRequestDTO> tagList;
 
-    private List<MultipartFile> fileList;
+    private List<PoiImgRequestDTO> images;
 
 }

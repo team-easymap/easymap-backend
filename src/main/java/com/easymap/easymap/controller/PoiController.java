@@ -10,6 +10,7 @@ import com.easymap.easymap.dto.response.poi.PoiGetResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewGetResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
+import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
 import com.easymap.easymap.handler.exception.AuthenticationException;
 import com.easymap.easymap.service.PoiService;
 import jakarta.validation.Valid;
@@ -49,7 +50,7 @@ public class PoiController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping(value="/add", consumes= MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value="/add")
     public ResponseEntity<?> addPoi(@RequestBody @Valid PoiAddRequestDTO poiAddRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
         if(userDetails == null){
             throw new AuthenticationException("not authenticated");
@@ -62,7 +63,7 @@ public class PoiController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PatchMapping(value="/{poiId}/update", consumes= MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value="/{poiId}/update")
     public ResponseEntity<?> updatePoi(@PathVariable(value = "poiId") Long poiId, @RequestBody @Valid PoiUpdateRequestDTO poiUpdateRequestDTO){
 
         log.info(poiUpdateRequestDTO.toString());
@@ -91,4 +92,6 @@ public class PoiController {
         return ReviewGetResponseDTO.success(reviews);
 
     }
+
+
 }

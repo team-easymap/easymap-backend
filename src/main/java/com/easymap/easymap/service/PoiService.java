@@ -6,6 +6,7 @@ import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
 import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
+import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
 
 import java.util.List;
 
@@ -21,4 +22,5 @@ public interface PoiService {
     Long addReview(Long poiId, ReviewPostRequestDTO reviewPostRequestDTO, String username);
 
     List<ReviewResponseDTO> getReviews(Long poiId);
+
 }

@@ -125,9 +125,8 @@ public class UserServiceImpl implements UserService{
         if(review.getUser().getUserId()!=user.getUserId()){
             throw new AccessDeniedException("you do not have permission to modify this review");
         }
-        // TODO 이미지 처리 후 넣어주기
-        //reviewUpdateRequestDTO.getImageList();
-        List<ReviewImg> imgList = new ArrayList<>();
+
+        List<ReviewImg> imgList = reviewUpdateRequestDTO.getImages().stream().map(img-> ReviewImg.builder().review(review).s3Key(img.getS3Key()).build()).collect(Collectors.toList());
         review.update(reviewUpdateRequestDTO, imgList);
 
         reviewRepository.save(review);

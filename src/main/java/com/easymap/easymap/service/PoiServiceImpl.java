@@ -6,21 +6,20 @@ import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
 import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
-import com.easymap.easymap.entity.Poi;
-import com.easymap.easymap.entity.PoiImg;
-import com.easymap.easymap.entity.Review;
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.dto.response.search.SearchResultAddressResponseDTO;
+import com.easymap.easymap.dto.response.search.SearchResultPoiResponseDTO;
+import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
+import com.easymap.easymap.entity.*;
 import com.easymap.easymap.entity.category.Category;
 import com.easymap.easymap.entity.category.DetailedCategory;
 import com.easymap.easymap.entity.category.Tag;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.*;
-import lombok.NoArgsConstructor;
+import com.easymap.easymap.util.search.SearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,6 +43,9 @@ public class PoiServiceImpl implements PoiService{
 
     private final ReviewRepository reviewRepository;
 
+    private final SearchUtil searchUtil;
+
+    @Transactional
     @Override
     public Long addPoi(PoiAddRequestDTO poiAddRequestDTO, String username) {
 
@@ -55,7 +57,7 @@ public class PoiServiceImpl implements PoiService{
         List<Tag> tagList = poiAddRequestDTO.getTagList().stream().map(tag -> tagRepository.findById(tag.getTagId()).orElseThrow(() -> new ResourceNotFoundException("no such tag")))
                 .collect(Collectors.toList());
 
-        List<PoiImg> poiImgList = null;
+
 
         Poi poi = Poi.builder()
                 .user(user)
@@ -68,16 +70,19 @@ public class PoiServiceImpl implements PoiService{
                 .code(poiAddRequestDTO.getCode()) // 일단 프론트에서 받아오는 걸로
                 .sharable(true)
                 .tagList(tagList)
-                .poiImgList(poiImgList)
                 .build();
 
-        // TODO 파일 처리 로직 구현
+        // 빌더에서 참조관계 설정 안되어서 poi 생성 후 세터 주입
+        List<PoiImg> poiImgs = poiAddRequestDTO.getImages().stream().map(s3key -> PoiImg.builder().poi(poi).s3Key(s3key.getS3Key()).build()).collect(Collectors.toList());
+        poi.setPoiImgList(poiImgs);
+
         
         Poi save = poiRepository.save(poi);
 
         return save.getPoiId();
     }
 
+    @Transactional
     @Override
     public void updatePoi(Long poiId, PoiUpdateRequestDTO poiUpdateRequestDTO) {
         DetailedCategory detailedCategory = detailedCategoryRepository.findById(poiUpdateRequestDTO.getDetailedCategoryId()).orElseThrow(() -> new ResourceNotFoundException("no such detailed category"));
@@ -85,11 +90,10 @@ public class PoiServiceImpl implements PoiService{
         List<Tag> tagList = poiUpdateRequestDTO.getTagList().stream().map(tag -> tagRepository.findById(tag.getTagId()).orElseThrow(() -> new ResourceNotFoundException("no such tag")))
                 .collect(Collectors.toList());
 
-        // TODO poiImgList 나중에 추가 구현
-        List<PoiImg> poiImgList = null;
 
         Poi poi = poiRepository.findById(poiId).orElseThrow(()-> new ResourceNotFoundException("no such Poi :"+ poiId));
 
+        List<PoiImg> poiImgList = poiUpdateRequestDTO.getImages().stream().map(s3key-> PoiImg.builder().poi(poi).s3Key(s3key.getS3Key()).build()).collect(Collectors.toList());
 
         poi.update(poiUpdateRequestDTO, detailedCategory, tagList, poiImgList);
 
@@ -123,6 +127,7 @@ public class PoiServiceImpl implements PoiService{
         return Poi.mapToDTO(poi);
     }
 
+
     @Override
     public Long addReview(Long poiId, ReviewPostRequestDTO reviewPostRequestDTO, String username) {
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no user such as :" + username));
@@ -134,9 +139,11 @@ public class PoiServiceImpl implements PoiService{
                 .poi(poi)
                 .score(reviewPostRequestDTO.getScore())
                 .reviewText(reviewPostRequestDTO.getReviewText())
-                .reviewImgList(null) // TODO Img 로직
                 .createAt(LocalDateTime.now())
                 .build();
+
+        List<ReviewImg> reviewImgs = reviewPostRequestDTO.getImages().stream().map(dto -> ReviewImg.builder().review(review).s3Key(dto.getS3Key()).build()).collect(Collectors.toList());
+        review.setReviewImgList(reviewImgs);
 
         Review save = reviewRepository.save(review);
         return save.getReviewId();
@@ -152,4 +159,6 @@ public class PoiServiceImpl implements PoiService{
 
         return collect;
     }
+
+
 }
