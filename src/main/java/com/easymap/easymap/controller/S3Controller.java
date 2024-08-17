@@ -20,9 +20,17 @@ public class S3Controller {
     private final S3Service s3Service;
 
     @GetMapping("/generate-presigned-url/put")
-    public ResponseEntity<? super S3PresignedUrlResponseDto> generatePresignedUrl(
+    public ResponseEntity<? super S3PresignedUrlResponseDto> generatePresignedUrlForPutMethod(
             @RequestParam("fileName") String fileName) {
         String presignedUrl = s3Service.generatePresignedUrl(fileName, HttpMethod.PUT);
+        log.info(presignedUrl);
+        return S3PresignedUrlResponseDto.success(presignedUrl);
+    }
+
+    @GetMapping("/generate-presigned-url/get")
+    public ResponseEntity<? super S3PresignedUrlResponseDto> generatePresignedUrlForGetMethod(
+            @RequestParam("fileName") String fileName) {
+        String presignedUrl = s3Service.generatePresignedUrl(fileName, HttpMethod.GET);
         log.info(presignedUrl);
         return S3PresignedUrlResponseDto.success(presignedUrl);
     }

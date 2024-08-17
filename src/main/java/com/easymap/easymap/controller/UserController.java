@@ -56,6 +56,9 @@ public class UserController {
         return ResponseDto.success();
     }
 
+    /**
+     * 필수로 입력해야 하는데 누락된 유저 정보를 리스트로 반환
+     */
     @GetMapping("additional-info-check")
     public ResponseEntity<? super UserAdditionalInfoResponseDto> userAdditionalInfoCheck(){
 
@@ -64,13 +67,13 @@ public class UserController {
         return UserAdditionalInfoResponseDto.success(rst);
     }
 
+    /**
+     * 회원 가입 미기입 정보(성별, 생년월일, 닉네임, 프로필 이미지 s3 key) 입력
+     * 기존 정보 변경시에도 이 api 사용
+     */
     @PatchMapping("/required")
     public ResponseEntity<ResponseDto> patchUserRequiredInfo(
             @RequestBody UserRequiredInfoRequestDto userInfo) {
-
-        log.info("Processing request to update user information");
-
-        // 여전히 userService를 통해 유저 정보를 갱신
         boolean isChanged = userService.patchUserRequiredInfo(userInfo);
         if (!isChanged) {
             return ResponseDto.notModified();

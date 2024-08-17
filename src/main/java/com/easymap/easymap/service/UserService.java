@@ -23,4 +23,6 @@ public interface UserService {
     void updateMyReview(Long reviewId, ReviewUpdateRequestDTO reviewUpdateRequestDTO, String username);
 
     void deleteMyReview(Long reviewId, String username);
+
+    boolean isUserNicknameDuplicated(String nickname);
 }

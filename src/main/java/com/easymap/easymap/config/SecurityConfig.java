@@ -5,6 +5,7 @@ import com.easymap.easymap.entity.User;
 import com.easymap.easymap.config.filter.JwtTokenValidatorFilter;
 import com.easymap.easymap.provider.JwtProvider;
 import com.easymap.easymap.repository.UserRepository;
+import com.easymap.easymap.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,6 +31,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 
 @Configuration
 @EnableWebSecurity
@@ -37,6 +40,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
 
     private final UserRepository userRepository;
+    private final UserService userService;
     private final String redirectUrl;
     private final JwtProvider jwtProvider;
 
@@ -50,8 +54,9 @@ public class SecurityConfig implements WebMvcConfigurer {
     }
 
     @Autowired
-    public SecurityConfig(UserRepository userRepository, @Value("${jwt.redirect-url}") String redirectUrl, JwtProvider jwtProvider) {
+    public SecurityConfig(UserRepository userRepository, UserService userService, @Value("${jwt.redirect-url}") String redirectUrl, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
+        this.userService = userService;
         this.redirectUrl = redirectUrl;
         this.jwtProvider = jwtProvider;
     }
@@ -98,6 +103,20 @@ public class SecurityConfig implements WebMvcConfigurer {
                 email = (String) ((Map<String, Object>) oauth2User.getAttribute("kakao_account")).get("email");
                 nickname = (String) ((Map<String, Object>) oauth2User.getAttribute("properties")).get("nickname");
             }
+
+            Random random = new Random();
+            String randomNum = "";
+            int attempt = 0;
+            final int MAX_ATTEMPTS = 1000;
+
+            while(userService.isUserNicknameDuplicated(nickname + randomNum)) {
+                if (attempt >= MAX_ATTEMPTS) {
+                    throw new RuntimeException("Unable to generate unique nickname after " + MAX_ATTEMPTS + " attempts.");
+                }
+                randomNum = String.valueOf(random.nextInt(1000)); // 0 ~ 999 사이의 숫자를 추가
+                attempt++;
+            }
+            nickname += randomNum;
 
             Optional<User> user = userRepository.findByEmail(email);
             if(!user.isPresent()) {

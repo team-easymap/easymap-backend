@@ -1,5 +1,6 @@
 package com.easymap.easymap.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.easymap.easymap.dto.request.review.ReviewUpdateRequestDTO;
 import com.easymap.easymap.dto.request.user.UserNicknameDuplicateRequestDTO;
 import com.easymap.easymap.dto.request.user.UserRequiredInfoRequestDto;
@@ -10,10 +11,10 @@ import com.easymap.easymap.entity.User;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.ReviewRepository;
 import com.easymap.easymap.repository.UserRepository;
+import com.easymap.easymap.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import java.util.ArrayList;
@@ -35,10 +35,11 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
+    private final S3Service s3Service;
 
     @Override
     public boolean userNicknameDuplicateCheck(UserNicknameDuplicateRequestDTO userNicknameDuplicateRequestDTO) {
-        return userRepository.existsByNicknameNative(userNicknameDuplicateRequestDTO.getNickname());
+        return isUserNicknameDuplicated(userNicknameDuplicateRequestDTO.getNickname());
 
     }
 
@@ -95,7 +96,10 @@ public class UserServiceImpl implements UserService{
             result = true;
         }
         if (userInfo.getProfileS3Key() != null) {
+            String old = user.getProfileS3Key();
+            log.info("old one:{}", old);
             user.setProfileS3Key(userInfo.getProfileS3Key()); // 프로필 이미지 URL 저장
+            if(old != null) s3Service.deleteImageFromS3(old);
             result = true;
         }
 
@@ -158,6 +162,13 @@ public class UserServiceImpl implements UserService{
             userEmail = authentication.getName();
         }
         return userEmail;
+    }
+
+    @Override
+    public boolean isUserNicknameDuplicated(String nickname){
+        log.info("nickname:{}", nickname);
+        log.info("duplicated?:{}", userRepository.existsByNicknameNative(nickname));
+        return userRepository.existsByNicknameNative(nickname);
     }
 
 }
