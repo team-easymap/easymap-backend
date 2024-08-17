@@ -130,10 +130,9 @@ public class SecurityConfig implements WebMvcConfigurer {
             }
             else if(user.get().getDeactivationDate() != null){
                 User oldUser = user.get();
-                oldUser.setDeactivationDate(null);
-                oldUser.setSignupDate(LocalDateTime.now());
+                // 탈퇴한 유저가 재 가입시
+                userService.recoverData(oldUser);
                 userRepository.save(oldUser);
-                //아마 이부분
             }
 
             return oauth2User;

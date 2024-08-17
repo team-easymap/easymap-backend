@@ -171,4 +171,11 @@ public class UserServiceImpl implements UserService{
         return userRepository.existsByNicknameNative(nickname);
     }
 
+    @Override
+    public void recoverData(User user) {
+        user.setDeactivationDate(null);
+        user.setSignupDate(LocalDateTime.now());
+        // TODO 다른 테아블도 복구
+    }
+
 }

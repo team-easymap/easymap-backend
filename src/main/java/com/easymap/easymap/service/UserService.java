@@ -25,4 +25,6 @@ public interface UserService {
     void deleteMyReview(Long reviewId, String username);
 
     boolean isUserNicknameDuplicated(String nickname);
+
+    void recoverData(User user);
 }
