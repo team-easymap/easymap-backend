@@ -69,13 +69,11 @@ public class UserController {
 
     /**
      * 회원 가입 미기입 정보(성별, 생년월일, 닉네임, 프로필 이미지 s3 key) 입력
+     * 기존 정보 변경시에도 이 api 사용
      */
     @PatchMapping("/required")
     public ResponseEntity<ResponseDto> patchUserRequiredInfo(
             @RequestBody UserRequiredInfoRequestDto userInfo) {
-
-        log.info("Processing request to update user information");
-
         boolean isChanged = userService.patchUserRequiredInfo(userInfo);
         if (!isChanged) {
             return ResponseDto.notModified();

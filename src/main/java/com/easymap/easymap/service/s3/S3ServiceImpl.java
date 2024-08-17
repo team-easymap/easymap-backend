@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
@@ -35,13 +36,52 @@ public class S3ServiceImpl implements S3Service{
                 .withMethod(method)  // GET, PUT, DELETE 등 메서드 지정
                 .withExpiration(expiration);
 
-        // 필요시 Content-Type도 설정
-        if (method == HttpMethod.PUT) {
-            generatePresignedUrlRequest.withContentType("image/png");
+        // 파일 확장자를 기반으로 Content-Type 설정
+        String contentType = determineContentType(fileName);
+        if (contentType != null) {
+            generatePresignedUrlRequest.withContentType(contentType);
         }
 
         URL url = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
         return url.toString();
+    }
+
+    public void deleteImageFromS3(String fileName){
+        try {
+            amazonS3Client.deleteObject(bucketName, fileName);
+        } catch (Exception e) {
+            log.error("Failed to delete file {} from S3 bucket: {}", fileName, e.getMessage());
+            throw new RuntimeException("Failed to delete file from S3", e);
+        }
+    }
+
+    private String determineContentType(String fileName) {
+        String extension = getExtension(fileName).toLowerCase();
+        switch (extension) {
+            case "png":
+                return MediaType.IMAGE_PNG_VALUE;
+            case "jpg":
+            case "jpeg":
+                return MediaType.IMAGE_JPEG_VALUE;
+            case "gif":
+                return MediaType.IMAGE_GIF_VALUE;
+            case "pdf":
+                return MediaType.APPLICATION_PDF_VALUE;
+            case "txt":
+                return MediaType.TEXT_PLAIN_VALUE;
+            case "html":
+                return MediaType.TEXT_HTML_VALUE;
+            default:
+                return null;  // MIME 타입이 정의되지 않은 경우 null 반환
+        }
+    }
+    private String getExtension(String fileName) {
+        String extension = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i + 1);
+        }
+        return extension;
     }
 
 }

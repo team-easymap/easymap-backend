@@ -116,6 +116,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 randomNum = String.valueOf(random.nextInt(1000)); // 0 ~ 999 사이의 숫자를 추가
                 attempt++;
             }
+            nickname += randomNum;
 
             Optional<User> user = userRepository.findByEmail(email);
             if(!user.isPresent()) {
