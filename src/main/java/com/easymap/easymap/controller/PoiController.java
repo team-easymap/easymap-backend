@@ -93,12 +93,5 @@ public class PoiController {
 
     }
 
-    @GetMapping(value="/search")
-    public ResponseEntity<?> searchKeyword(String keyword){
-        log.info(keyword);
-        SearchResultResponseDTO searched = poiService.searchKeyword(keyword);
-
-        return SearchResultResponseDTO.success(searched);
-    }
 
 }

@@ -23,5 +23,4 @@ public interface PoiService {
 
     List<ReviewResponseDTO> getReviews(Long poiId);
 
-    SearchResultResponseDTO searchKeyword(String keyword);
 }
