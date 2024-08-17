@@ -27,6 +27,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -104,8 +105,16 @@ public class SecurityConfig implements WebMvcConfigurer {
                 newUser.setEmail(email);
                 newUser.setNickname(nickname);
                 newUser.setOauthType(oauth);
+                newUser.setSignupDate(LocalDateTime.now());
                 newUser.setUserRole("ROLE_USER");
                 userRepository.save(newUser);
+            }
+            else if(user.get().getDeactivationDate() != null){
+                User oldUser = user.get();
+                oldUser.setDeactivationDate(null);
+                oldUser.setSignupDate(LocalDateTime.now());
+                userRepository.save(oldUser);
+                //아마 이부분
             }
 
             return oauth2User;
