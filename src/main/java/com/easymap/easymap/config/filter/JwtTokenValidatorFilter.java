@@ -4,6 +4,7 @@ import com.easymap.easymap.config.CustomUserDetails;
 import com.easymap.easymap.entity.User;
 import com.easymap.easymap.handler.exception.AuthenticationException;
 import com.easymap.easymap.provider.JwtProvider;
+import com.easymap.easymap.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
