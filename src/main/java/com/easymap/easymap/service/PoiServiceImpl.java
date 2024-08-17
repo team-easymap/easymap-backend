@@ -6,18 +6,20 @@ import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
 import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
+import com.easymap.easymap.dto.response.search.SearchResultAddressResponseDTO;
+import com.easymap.easymap.dto.response.search.SearchResultPoiResponseDTO;
+import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
 import com.easymap.easymap.entity.*;
 import com.easymap.easymap.entity.category.Category;
 import com.easymap.easymap.entity.category.DetailedCategory;
 import com.easymap.easymap.entity.category.Tag;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.*;
-import lombok.NoArgsConstructor;
+import com.easymap.easymap.util.search.SearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,6 +42,8 @@ public class PoiServiceImpl implements PoiService{
     private final TagRepository tagRepository;
 
     private final ReviewRepository reviewRepository;
+
+    private final SearchUtil searchUtil;
 
     @Transactional
     @Override
@@ -154,5 +158,36 @@ public class PoiServiceImpl implements PoiService{
         List<ReviewResponseDTO> collect = reviews.stream().map(Review::mapToDTO).collect(Collectors.toList());
 
         return collect;
+    }
+
+    @Override
+    public SearchResultResponseDTO searchKeyword(String keyword) {
+        // 향후 비동기로 수정
+        List<SearchResultAddressResponseDTO> addressResponseDTOList = searchUtil.searchKeyword(keyword).getResults().getAdsData().stream()
+                .map(adsDate -> SearchResultAddressResponseDTO.builder()
+                        .name(adsDate.getBdNm())
+                        .address(adsDate.getRoadAddr())
+                        .admCd(adsDate.getAdmCd())
+                        .rnMgtSn(adsDate.getRnMgtSn())
+                        .udtrYn(adsDate.getUdrtYn())
+                        .buldMnnm(adsDate.getBuldMnnm())
+                        .buldSlno(adsDate.getBuldSlno())
+                        .build()).limit(10L).collect(Collectors.toList());
+
+        // DB 결과 조회
+        List<SearchResultPoiResponseDTO> poiResponseDTOList = poiRepository.findByKeywordAndSharableAndNotDeleted(keyword).stream().map(poi -> SearchResultPoiResponseDTO.builder()
+                .poiId(poi.getPoiId())
+                .poiName(poi.getPoiName())
+                .poiAddress(poi.getPoiAddress())
+                .lat(poi.getPoiLatitude())
+                .lng(poi.getPoiLongitude())
+                .build()).limit(20L).collect(Collectors.toList());
+
+        return SearchResultResponseDTO.builder()
+                .addressResponseDTOList(addressResponseDTOList)
+                .poiResponseDTOList(poiResponseDTOList)
+                .build();
+
+
     }
 }

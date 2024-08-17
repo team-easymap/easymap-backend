@@ -10,6 +10,7 @@ import com.easymap.easymap.dto.response.poi.PoiGetResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewGetResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
+import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
 import com.easymap.easymap.handler.exception.AuthenticationException;
 import com.easymap.easymap.service.PoiService;
 import jakarta.validation.Valid;
@@ -91,4 +92,13 @@ public class PoiController {
         return ReviewGetResponseDTO.success(reviews);
 
     }
+
+    @GetMapping(value="/search")
+    public ResponseEntity<?> searchKeyword(String keyword){
+        log.info(keyword);
+        SearchResultResponseDTO searched = poiService.searchKeyword(keyword);
+
+        return SearchResultResponseDTO.success(searched);
+    }
+
 }
