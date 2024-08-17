@@ -1,4 +1,4 @@
-package com.easymap.easymap.dto.response.review;
+package com.easymap.easymap.dto.request.review;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ReviewImgResponseDTO {
+public class ReviewImgRequestDTO {
 
-    private Long imgId;
-
-    private String s3Key;
+    String s3Key;
 }

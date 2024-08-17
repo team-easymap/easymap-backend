@@ -1,4 +1,4 @@
-package com.easymap.easymap.dto.response.review;
+package com.easymap.easymap.dto.request.poi;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,12 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class ReviewImgResponseDTO {
-
-    private Long imgId;
+public class PoiImgRequestDTO {
 
     private String s3Key;
 }

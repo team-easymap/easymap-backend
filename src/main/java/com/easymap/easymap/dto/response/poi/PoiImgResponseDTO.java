@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PoiImgResponseDTO {
 
-    private Long poiImgId;
+    private Long imgId;
 
-    private String poiImgS3Url;
+    private String s3Key;
 }

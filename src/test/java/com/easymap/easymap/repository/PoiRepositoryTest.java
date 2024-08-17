@@ -76,5 +76,11 @@ class PoiRepositoryTest {
 
     }
 
+    @Test
+    public void 검색테스트(){
+        List<Poi> searched = poiRepository.findByKeywordAndSharableAndNotDeleted("번지");
+
+        log.info(""+searched.size());
+    }
 
 }
