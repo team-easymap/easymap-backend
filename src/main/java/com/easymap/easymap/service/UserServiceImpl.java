@@ -8,6 +8,7 @@ import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
 import com.easymap.easymap.entity.Review;
 import com.easymap.easymap.entity.ReviewImg;
 import com.easymap.easymap.entity.User;
+import com.easymap.easymap.handler.exception.NickNameDuplicatedException;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.ReviewRepository;
 import com.easymap.easymap.repository.UserRepository;
@@ -41,6 +42,31 @@ public class UserServiceImpl implements UserService{
     public boolean userNicknameDuplicateCheck(UserNicknameDuplicateRequestDTO userNicknameDuplicateRequestDTO) {
         return isUserNicknameDuplicated(userNicknameDuplicateRequestDTO.getNickname());
 
+    }
+
+    /**
+     * userID가 null인 경우 자기 정보 조회, 타인 정보인 경우 userId, profile_s3_key, nickname만 노출
+     */
+    @Override
+    public User loadUserStatus(Long userId, UserDetails userDetails) {
+        User user;
+        log.info("userId:{}", userId);
+        if(userId == null){
+            user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(
+                    () -> new ResourceNotFoundException("no active user :" + userDetails.getUsername())
+            );
+        }
+        else{
+            user = userRepository.findUserByUserIdAndDeactivationDateIsNull(userId).orElseThrow(
+                    () -> new ResourceNotFoundException("no active user :" + userDetails.getUsername())
+            );
+            user.setEmail(null);
+            user.setGender(null);
+            user.setBirthdate(null);
+            user.setOauthType(null);
+            user.setSignupDate(null);
+        }
+        return user;
     }
 
     @Override
@@ -92,6 +118,9 @@ public class UserServiceImpl implements UserService{
             result = true;
         }
         if (userInfo.getNickname() != null) {
+            if(isUserNicknameDuplicated(userInfo.getNickname())){
+                throw new NickNameDuplicatedException("Nickname Duplicated.");
+            }
             user.setNickname(userInfo.getNickname());
             result = true;
         }
@@ -170,6 +199,8 @@ public class UserServiceImpl implements UserService{
         log.info("duplicated?:{}", userRepository.existsByNicknameNative(nickname));
         return userRepository.existsByNicknameNative(nickname);
     }
+
+
 
     @Override
     public void recoverData(User user) {

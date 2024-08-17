@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public interface UserService {
     boolean userNicknameDuplicateCheck(UserNicknameDuplicateRequestDTO userNicknameDuplicateRequestDTO);
+    User loadUserStatus(Long userId, UserDetails userDetails);
     List<String> userAdditionalInfoCheck();
 
 
@@ -25,6 +26,7 @@ public interface UserService {
     void deleteMyReview(Long reviewId, String username);
 
     boolean isUserNicknameDuplicated(String nickname);
+
 
     void recoverData(User user);
 }

@@ -12,8 +12,12 @@ public interface ResponseMessage {
 
     String DATABASE_ERROR = "Database error.";
 
-    String INTERNAL_SERVER_ERROR = "Internal server error occurred.";
+    String INTERNAL_SERVER_ERROR = "Internal server error occurred";
 
     String NOT_MODIFIED = "Resource not modified.";
+
+    String USER_DEACTIVATED = "User deactivated.";
+
+    String ETC = "An unexpected error occurred";
 
 }

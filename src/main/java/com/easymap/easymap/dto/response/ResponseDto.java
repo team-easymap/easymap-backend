@@ -48,6 +48,11 @@ public class ResponseDto {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
     }
 
+    public static ResponseEntity<ResponseDto> conflict(String message) {
+        ResponseDto responseBody = new ResponseDto(ResponseCode.ETC, ResponseMessage.ETC + ":" + message);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody);
+    }
+
     public static ResponseEntity<ResponseDto> internalServerError() {
         ResponseDto responseBody = new ResponseDto(ResponseCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
