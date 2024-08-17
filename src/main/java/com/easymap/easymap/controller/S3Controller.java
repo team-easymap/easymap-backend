@@ -26,4 +26,12 @@ public class S3Controller {
         log.info(presignedUrl);
         return S3PresignedUrlResponseDto.success(presignedUrl);
     }
+
+    @GetMapping("/generate-presigned-url/get")
+    public ResponseEntity<? super S3PresignedUrlResponseDto> generatePresignedUrlForGetMethod(
+            @RequestParam("fileName") String fileName) {
+        String presignedUrl = s3Service.generatePresignedUrl(fileName, HttpMethod.GET);
+        log.info(presignedUrl);
+        return S3PresignedUrlResponseDto.success(presignedUrl);
+    }
 }
