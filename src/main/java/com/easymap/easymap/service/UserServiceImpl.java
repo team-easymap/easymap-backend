@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public List<String> userAdditionalInfoCheck() {
         String userEmail = findUserEmailFromJwt();
-        User user = userRepository.findByEmail(userEmail).orElseThrow(
+        User user = userRepository.findUserByEmailAndDeactivationDateIsNull(userEmail).orElseThrow(
                 () -> new ResourceNotFoundException("User not found with email: " + userEmail)
         );
         List<String> requireList = new ArrayList<>();
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService{
 
         log.info("Received User Info: {}", userInfo);
         String userEmail = findUserEmailFromJwt();
-        User user = userRepository.findByEmail(userEmail).orElseThrow(
+        User user = userRepository.findUserByEmailAndDeactivationDateIsNull(userEmail).orElseThrow(
                 () -> new ResourceNotFoundException("User not found with email: " + userEmail)
         );
 

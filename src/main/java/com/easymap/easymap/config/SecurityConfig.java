@@ -27,6 +27,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -104,8 +105,16 @@ public class SecurityConfig implements WebMvcConfigurer {
                 newUser.setEmail(email);
                 newUser.setNickname(nickname);
                 newUser.setOauthType(oauth);
+                newUser.setSignupDate(LocalDateTime.now());
                 newUser.setUserRole("ROLE_USER");
                 userRepository.save(newUser);
+            }
+            else if(user.get().getDeactivationDate() != null){
+                User oldUser = user.get();
+                oldUser.setDeactivationDate(null);
+                oldUser.setSignupDate(LocalDateTime.now());
+                userRepository.save(oldUser);
+                //아마 이부분
             }
 
             return oauth2User;
@@ -132,7 +141,7 @@ class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler
         if(email == null) {
             email = (String) ((Map<String, Object>) oauth2User.getAttribute("kakao_account")).get("email");
         }
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findUserByEmailAndDeactivationDateIsNull(email).orElseThrow();
         String jwt = jwtProvider.generateToken(user, 60 * 60 * 100L);
 
         Cookie cookie = new Cookie("jwt", jwt);
