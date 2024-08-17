@@ -40,6 +40,11 @@ public class GlobalExceptionHandler {
         return ResponseDto.notFound();
     }
 
+    @ExceptionHandler(NickNameDuplicatedException.class)
+    public ResponseEntity<ResponseDto> handleCommonException(RuntimeException e) {
+        return ResponseDto.conflict(e.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseDto> handleGenericException(Exception e) {
         e.printStackTrace();

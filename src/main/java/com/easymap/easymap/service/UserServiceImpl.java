@@ -8,6 +8,7 @@ import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
 import com.easymap.easymap.entity.Review;
 import com.easymap.easymap.entity.ReviewImg;
 import com.easymap.easymap.entity.User;
+import com.easymap.easymap.handler.exception.NickNameDuplicatedException;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.ReviewRepository;
 import com.easymap.easymap.repository.UserRepository;
@@ -117,6 +118,9 @@ public class UserServiceImpl implements UserService{
             result = true;
         }
         if (userInfo.getNickname() != null) {
+            if(isUserNicknameDuplicated(userInfo.getNickname())){
+                throw new NickNameDuplicatedException("Nickname Duplicated.");
+            }
             user.setNickname(userInfo.getNickname());
             result = true;
         }

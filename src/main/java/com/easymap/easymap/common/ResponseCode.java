@@ -18,4 +18,6 @@ public interface ResponseCode {
 
     String USER_DEACTIVATED = "UD";
 
+    String ETC = "ETC";
+
 }
