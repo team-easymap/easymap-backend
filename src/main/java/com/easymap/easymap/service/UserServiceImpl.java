@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public boolean userNicknameDuplicateCheck(UserNicknameDuplicateRequestDTO userNicknameDuplicateRequestDTO) {
-        return userRepository.existsByNicknameNative(userNicknameDuplicateRequestDTO.getNickname());
+        return isUserNicknameDuplicated(userNicknameDuplicateRequestDTO.getNickname());
 
     }
 
@@ -158,6 +158,11 @@ public class UserServiceImpl implements UserService{
             userEmail = authentication.getName();
         }
         return userEmail;
+    }
+
+    @Override
+    public boolean isUserNicknameDuplicated(String nickname){
+        return userRepository.existsByNicknameNative(nickname);
     }
 
 }

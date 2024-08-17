@@ -68,7 +68,7 @@ public class UserController {
     }
 
     /**
-     * 유저 정보(성별, 생년월일, 닉네임, 프로필 이미지 s3 key) 변경
+     * 회원 가입 미기입 정보(성별, 생년월일, 닉네임, 프로필 이미지 s3 key) 입력
      */
     @PatchMapping("/required")
     public ResponseEntity<ResponseDto> patchUserRequiredInfo(
