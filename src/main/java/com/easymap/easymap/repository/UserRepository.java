@@ -16,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findUserByUserIdAndDeactivationDateIsNull(Long userId);
 
+    boolean existsUserByEmailAndDeactivationDateIsNull(String email);
+
 }
