@@ -1,5 +1,6 @@
 package com.easymap.easymap.service;
 
+import com.easymap.easymap.dto.request.poi.BboxPoiRequestDTO;
 import com.easymap.easymap.dto.request.poi.InstantPoiPostRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiAddRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiUpdateRequestDTO;
@@ -194,6 +195,28 @@ public class PoiServiceImpl implements PoiService{
 
 
         return save.getPoiId();
+    }
+
+    @Transactional
+    @Override
+    public List<PoiResponseDTO> findBboxPoiList(BboxPoiRequestDTO bboxPoiRequestDTO) {
+        // lt_lat, lt_lng, rb_lat, rb_lng
+        List<Double> bbox = bboxPoiRequestDTO.getBbox();
+
+        bbox.forEach(i-> log.info(i.toString()));
+
+        Double smLat = Math.min(bbox.get(0), bbox.get(2));
+        Double bLat = Math.max(bbox.get(0), bbox.get(2));
+        Double smLng = Math.min(bbox.get(1), bbox.get(3));
+        Double bLng = Math.max(bbox.get(1), bbox.get(3));
+
+
+
+        List<Poi> poisInBbox = poiRepository.findPoiInBbox(bboxPoiRequestDTO.getCategoryId(), smLat, bLat, smLng, bLng);
+
+        List<PoiResponseDTO> collect = poisInBbox.stream().map(poi -> Poi.mapToDTO(poi)).collect(Collectors.toList());
+
+        return collect;
     }
 
 

@@ -23,4 +23,16 @@ public interface PoiRepository extends JpaRepository<Poi, Long> {
     @Query("SELECT p FROM Poi p WHERE "+
             "p.poiLatitude = :lat AND p.poiLongitude = :lng")
     List<Poi> findByPoiLatitudeAndPoiLongitude(@Param("lat") Double poiLatitude, @Param("lng") Double poiLongitude, Pageable pageable);
+
+
+    @Query("SELECT p FROM Poi p "
+            + "JOIN p.detailedCategory dc "
+            + "WHERE (:categoryId IS NULL OR dc.category.categoryId = :categoryId) " +
+            "AND p.poiLatitude BETWEEN :smLat AND :bLat " +
+            "AND p.poiLongitude BETWEEN :smLng AND :bLng")
+    List<Poi> findPoiInBbox(@Param("categoryId") Long categoryId,
+                            @Param("smLat") double smLat,
+                            @Param("bLat") double bLat,
+                            @Param("smLng") double smLng,
+                            @Param("bLng") double bLng);
 }

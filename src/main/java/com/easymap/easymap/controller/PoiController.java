@@ -1,5 +1,6 @@
 package com.easymap.easymap.controller;
 
+import com.easymap.easymap.dto.request.poi.BboxPoiRequestDTO;
 import com.easymap.easymap.dto.request.poi.InstantPoiPostRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiAddRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiUpdateRequestDTO;
@@ -7,6 +8,7 @@ import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
 import com.easymap.easymap.dto.response.ResponseDto;
 import com.easymap.easymap.dto.response.category.CategoryGetResponseDTO;
 import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
+import com.easymap.easymap.dto.response.poi.BboxPoiListResponseDTO;
 import com.easymap.easymap.dto.response.poi.InstantPoiResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiGetResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
@@ -102,6 +104,13 @@ public class PoiController {
         Long poiId = poiService.addInstantPoi(instantPoiPostRequestDTO, userDetails.getUsername());
 
         return InstantPoiResponseDTO.success(poiId);
+    }
+
+    @PostMapping("/list")
+    public ResponseEntity<?> postBboxPoiList(@RequestBody BboxPoiRequestDTO bboxPoiRequestDTO){
+
+        List<PoiResponseDTO> poiResponseDTOList = poiService.findBboxPoiList(bboxPoiRequestDTO);
+        return BboxPoiListResponseDTO.success(poiResponseDTOList);
     }
 
 
