@@ -1,5 +1,6 @@
 package com.easymap.easymap.service;
 
+import com.easymap.easymap.dto.request.poi.InstantPoiPostRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiAddRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiUpdateRequestDTO;
 import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
@@ -23,4 +24,5 @@ public interface PoiService {
 
     List<ReviewResponseDTO> getReviews(Long poiId);
 
+    Long addInstantPoi(InstantPoiPostRequestDTO instantPoiPostRequestDTO, String username);
 }

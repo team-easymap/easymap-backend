@@ -1,11 +1,13 @@
 package com.easymap.easymap.controller;
 
+import com.easymap.easymap.dto.request.poi.InstantPoiPostRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiAddRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiUpdateRequestDTO;
 import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
 import com.easymap.easymap.dto.response.ResponseDto;
 import com.easymap.easymap.dto.response.category.CategoryGetResponseDTO;
 import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
+import com.easymap.easymap.dto.response.poi.InstantPoiResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiGetResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewGetResponseDTO;
@@ -93,7 +95,14 @@ public class PoiController {
 
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/instantpoi")
+    public ResponseEntity<?> postInstantPoi(@RequestBody InstantPoiPostRequestDTO instantPoiPostRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
 
+        Long poiId = poiService.addInstantPoi(instantPoiPostRequestDTO, userDetails.getUsername());
+
+        return InstantPoiResponseDTO.success(poiId);
+    }
 
 
 }

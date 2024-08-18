@@ -1,5 +1,6 @@
 package com.easymap.easymap.service;
 
+import com.easymap.easymap.dto.request.poi.InstantPoiPostRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiAddRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiUpdateRequestDTO;
 import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
@@ -20,8 +21,11 @@ import com.easymap.easymap.service.s3.S3ServiceImpl;
 import com.easymap.easymap.util.search.SearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -165,6 +169,31 @@ public class PoiServiceImpl implements PoiService{
         List<ReviewResponseDTO> collect = reviews.stream().map(Review::mapToDTO).collect(Collectors.toList());
 
         return collect;
+    }
+
+    @Override
+    public Long addInstantPoi(InstantPoiPostRequestDTO instantPoiPostRequestDTO, String username) {
+
+        // 동일 좌표에 공개 POI가 있는 경우 해당 POI ID를 리턴
+        List<Poi> pois = poiRepository.findByPoiLatitudeAndPoiLongitude(instantPoiPostRequestDTO.getPlace().getLatitude(), instantPoiPostRequestDTO.getPlace().getLongitude(), PageRequest.of(0, 1));
+        if(pois.size()!=0){
+            return pois.get(0).getPoiId();
+        }
+        User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no user such as : " + username));
+
+        Poi newInstantPoi = Poi.builder()
+                .poiAddress(instantPoiPostRequestDTO.getPlace().getAddress())
+                .poiLatitude(instantPoiPostRequestDTO.getPlace().getLatitude())
+                .poiLongitude(instantPoiPostRequestDTO.getPlace().getLongitude())
+                .sharable(false)
+                .poiRecentUpdateDate(LocalDateTime.now())
+                .user(user)
+                .build();
+
+        Poi save = poiRepository.save(newInstantPoi);
+
+
+        return save.getPoiId();
     }
 
 

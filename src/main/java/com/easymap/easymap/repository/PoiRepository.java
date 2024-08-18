@@ -1,6 +1,7 @@
 package com.easymap.easymap.repository;
 
 import com.easymap.easymap.entity.Poi;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +19,8 @@ public interface PoiRepository extends JpaRepository<Poi, Long> {
             "AND p.sharable = true " +
             "AND p.deletedAt IS NULL")
     List<Poi> findByKeywordAndSharableAndNotDeleted(@Param("keyword") String keyword);
+
+    @Query("SELECT p FROM Poi p WHERE "+
+            "p.poiLatitude = :lat AND p.poiLongitude = :lng")
+    List<Poi> findByPoiLatitudeAndPoiLongitude(@Param("lat") Double poiLatitude, @Param("lng") Double poiLongitude, Pageable pageable);
 }
