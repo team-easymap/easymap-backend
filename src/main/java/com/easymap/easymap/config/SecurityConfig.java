@@ -80,7 +80,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         )
                         .successHandler(new CustomAuthenticationSuccessHandler(userRepository, jwtProvider, redirectUrl))
                 )
-                .addFilterBefore(new JwtTokenValidatorFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtTokenValidatorFilter(jwtProvider, userRepository), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

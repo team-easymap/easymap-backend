@@ -26,6 +26,7 @@ import java.util.Map;
 public class JwtTokenValidatorFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -48,6 +49,9 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
             }
 
             String email = jwtProvider.getEmail(token);
+            //탈퇴한 유저인지 확인
+            boolean isEligible = userRepository.existsUserByEmailAndDeactivationDateIsNull(email);
+            if(isEligible) throw new AuthenticationException("Authenticate with deactivated user authentication");
             String nickname = jwtProvider.getNickname(token);
             String userRole = jwtProvider.getUserRole(token);
             String oauthType = jwtProvider.getUserOauthType(token);
