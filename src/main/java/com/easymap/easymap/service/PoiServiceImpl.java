@@ -15,6 +15,8 @@ import com.easymap.easymap.entity.category.DetailedCategory;
 import com.easymap.easymap.entity.category.Tag;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.*;
+import com.easymap.easymap.service.s3.S3Service;
+import com.easymap.easymap.service.s3.S3ServiceImpl;
 import com.easymap.easymap.util.search.SearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +46,8 @@ public class PoiServiceImpl implements PoiService{
     private final ReviewRepository reviewRepository;
 
     private final SearchUtil searchUtil;
+
+    private final S3Service s3Service;
 
     @Transactional
     @Override
@@ -93,9 +97,12 @@ public class PoiServiceImpl implements PoiService{
 
         Poi poi = poiRepository.findById(poiId).orElseThrow(()-> new ResourceNotFoundException("no such Poi :"+ poiId));
 
-        List<PoiImg> poiImgList = poiUpdateRequestDTO.getImages().stream().map(s3key-> PoiImg.builder().poi(poi).s3Key(s3key.getS3Key()).build()).collect(Collectors.toList());
+        List<PoiImg> newPoiImgList = poiUpdateRequestDTO.getImages().stream().map(s3key-> PoiImg.builder().poi(poi).s3Key(s3key.getS3Key()).build()).collect(Collectors.toList());
+        // 업데이트 한 이미지 중 겹치는것 제외하고 삭제
+        poi.getPoiImgList().stream().filter(img-> newPoiImgList.stream().map(newImg-> newImg.getS3Key()).collect(Collectors.toList()).contains(img.getS3Key()))
+                        .forEach(img-> s3Service.deleteImageFromS3(img.getS3Key()));
 
-        poi.update(poiUpdateRequestDTO, detailedCategory, tagList, poiImgList);
+        poi.update(poiUpdateRequestDTO, detailedCategory, tagList, newPoiImgList);
 
         poiRepository.save(poi);
 
