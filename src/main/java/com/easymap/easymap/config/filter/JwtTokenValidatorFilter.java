@@ -13,6 +13,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RequiredArgsConstructor
+@Slf4j
 public class JwtTokenValidatorFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
@@ -47,11 +49,10 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
             if (token == null || jwtProvider.isExpired(token)) {
                 throw new AuthenticationException("Invalid or expired JWT token");
             }
-
             String email = jwtProvider.getEmail(token);
             //탈퇴한 유저인지 확인
             boolean isEligible = userRepository.existsUserByEmailAndDeactivationDateIsNull(email);
-            if(isEligible) throw new AuthenticationException("Authenticate with deactivated user authentication");
+            if(!isEligible) throw new AuthenticationException("Authenticate with deactivated user authentication");
             String nickname = jwtProvider.getNickname(token);
             String userRole = jwtProvider.getUserRole(token);
             String oauthType = jwtProvider.getUserOauthType(token);
