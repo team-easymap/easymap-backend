@@ -20,7 +20,7 @@ public class SearchUtil {
 
     private final SearchResponseExtractor extractor = new SearchResponseExtractor();
 
-    @Value("${juso.search.conformKey}")
+    @Value("${apikey.juso.search.conformKey}")
     private String conformKey;
 
     private final int currentPage = 1;

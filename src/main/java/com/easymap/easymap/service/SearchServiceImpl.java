@@ -6,6 +6,8 @@ import com.easymap.easymap.dto.response.search.SearchResultAddressResponseDTO;
 import com.easymap.easymap.dto.response.search.SearchResultPoiResponseDTO;
 import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
 import com.easymap.easymap.repository.PoiRepository;
+import com.easymap.easymap.util.coordinate.CoordinateConverterUtil;
+import com.easymap.easymap.util.coordinate.dto.Coordinates;
 import com.easymap.easymap.util.search.SearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 public class SearchServiceImpl implements SearchService{
 
     private final SearchUtil searchUtil;
+
+    private final CoordinateConverterUtil coordinateConverterUtil;
 
     private final PoiRepository poiRepository;
 
@@ -56,10 +60,12 @@ public class SearchServiceImpl implements SearchService{
     }
 
     @Override
-    public PoiResponseDTO postAddressToPoi(SearchAddressPostRequestDTO addressPostRequestDTO) {
+    public Coordinates postAddressToCoordinate(SearchAddressPostRequestDTO addressPostRequestDTO) {
+
+        // 일단 vworld로 구현
+        Coordinates coordinates = coordinateConverterUtil.convertByAddressFromVworld(addressPostRequestDTO);
 
 
-
-        return null;
+        return coordinates;
     }
 }

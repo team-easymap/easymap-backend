@@ -1,9 +1,11 @@
 package com.easymap.easymap.controller;
 
 import com.easymap.easymap.dto.request.search.SearchAddressPostRequestDTO;
+import com.easymap.easymap.dto.response.coordinate.CoordinateResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
 import com.easymap.easymap.service.SearchService;
+import com.easymap.easymap.util.coordinate.dto.Coordinates;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +27,13 @@ public class SearchController {
         return SearchResultResponseDTO.success(searched);
     }
 
-    @PostMapping("/address")
-    public ResponseEntity<?> postAddressToPoi(@RequestBody SearchAddressPostRequestDTO addressPostRequestDTO){
+    @PostMapping("/coordinate")
+    public ResponseEntity<?> postAddressToCoordinate(@RequestBody SearchAddressPostRequestDTO addressPostRequestDTO){
 
-        PoiResponseDTO poiResponseDTO = searchService.postAddressToPoi(addressPostRequestDTO);
+        Coordinates coordinates = searchService.postAddressToCoordinate(addressPostRequestDTO);
 
 
-        return null;
+        return CoordinateResponseDTO.success(coordinates);
     }
 
 }
