@@ -1,4 +1,4 @@
-package com.easymap.easymap.dto.request.poi;
+package com.easymap.easymap.dto.request.map;
 
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -12,9 +12,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BboxPoiRequestDTO {
-
-    private Long categoryId;
+public class MapBboxRequestDTO {
 
     @Size(min=4, max=4, message = "bbox 리스트는 4개의 요소를 요구함.")
     private List<Double> bbox;

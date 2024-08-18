@@ -107,7 +107,7 @@ public class PoiController {
     }
 
     @PostMapping("/list")
-    public ResponseEntity<?> postBboxPoiList(@RequestBody BboxPoiRequestDTO bboxPoiRequestDTO){
+    public ResponseEntity<?> postBboxPoiList(@RequestBody @Valid BboxPoiRequestDTO bboxPoiRequestDTO){
 
         List<PoiResponseDTO> poiResponseDTOList = poiService.findBboxPoiList(bboxPoiRequestDTO);
         return BboxPoiListResponseDTO.success(poiResponseDTOList);

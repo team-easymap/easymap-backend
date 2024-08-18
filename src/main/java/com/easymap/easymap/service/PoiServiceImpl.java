@@ -203,8 +203,6 @@ public class PoiServiceImpl implements PoiService{
         // lt_lat, lt_lng, rb_lat, rb_lng
         List<Double> bbox = bboxPoiRequestDTO.getBbox();
 
-        bbox.forEach(i-> log.info(i.toString()));
-
         Double smLat = Math.min(bbox.get(0), bbox.get(2));
         Double bLat = Math.max(bbox.get(0), bbox.get(2));
         Double smLng = Math.min(bbox.get(1), bbox.get(3));
