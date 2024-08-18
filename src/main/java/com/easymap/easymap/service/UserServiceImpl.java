@@ -144,7 +144,6 @@ public class UserServiceImpl implements UserService{
 
         List<Review> reviewsByUserUserId = reviewRepository.findReviewsByUser_UserId(user.getUserId());
 
-
         return reviewsByUserUserId.stream().map(Review::mapToDTO).collect(Collectors.toList());
     }
 
@@ -159,8 +158,13 @@ public class UserServiceImpl implements UserService{
             throw new AccessDeniedException("you do not have permission to modify this review");
         }
 
-        List<ReviewImg> imgList = reviewUpdateRequestDTO.getImages().stream().map(img-> ReviewImg.builder().review(review).s3Key(img.getS3Key()).build()).collect(Collectors.toList());
-        review.update(reviewUpdateRequestDTO, imgList);
+        List<ReviewImg> newImgList = reviewUpdateRequestDTO.getImages().stream().map(img-> ReviewImg.builder().review(review).s3Key(img.getS3Key()).build()).collect(Collectors.toList());
+
+        // 겹치지 않는 imgList의 img 삭제 로직
+        review.getReviewImgList().stream().filter(img-> newImgList.stream().map(newImg-> newImg.getS3Key()).collect(Collectors.toList()).contains(img.getS3Key()))
+                        .forEach(img-> s3Service.deleteImageFromS3(img.getS3Key()));
+
+        review.update(reviewUpdateRequestDTO, newImgList);
 
         reviewRepository.save(review);
 
@@ -176,6 +180,7 @@ public class UserServiceImpl implements UserService{
             throw new AccessDeniedException("you do not have permission to delete this review");
         }
 
+        review.getReviewImgList().stream().forEach(img-> s3Service.deleteImageFromS3(img.getS3Key()));
 
         reviewRepository.delete(review);
     }

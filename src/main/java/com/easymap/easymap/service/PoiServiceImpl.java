@@ -1,5 +1,7 @@
 package com.easymap.easymap.service;
 
+import com.easymap.easymap.dto.request.poi.BboxPoiRequestDTO;
+import com.easymap.easymap.dto.request.poi.InstantPoiPostRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiAddRequestDTO;
 import com.easymap.easymap.dto.request.poi.PoiUpdateRequestDTO;
 import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
@@ -15,11 +17,16 @@ import com.easymap.easymap.entity.category.DetailedCategory;
 import com.easymap.easymap.entity.category.Tag;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.*;
+import com.easymap.easymap.service.s3.S3Service;
+import com.easymap.easymap.service.s3.S3ServiceImpl;
 import com.easymap.easymap.util.search.SearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,6 +51,8 @@ public class PoiServiceImpl implements PoiService{
     private final ReviewRepository reviewRepository;
 
     private final SearchUtil searchUtil;
+
+    private final S3Service s3Service;
 
     @Transactional
     @Override
@@ -93,9 +102,12 @@ public class PoiServiceImpl implements PoiService{
 
         Poi poi = poiRepository.findById(poiId).orElseThrow(()-> new ResourceNotFoundException("no such Poi :"+ poiId));
 
-        List<PoiImg> poiImgList = poiUpdateRequestDTO.getImages().stream().map(s3key-> PoiImg.builder().poi(poi).s3Key(s3key.getS3Key()).build()).collect(Collectors.toList());
+        List<PoiImg> newPoiImgList = poiUpdateRequestDTO.getImages().stream().map(s3key-> PoiImg.builder().poi(poi).s3Key(s3key.getS3Key()).build()).collect(Collectors.toList());
+        // 업데이트 한 이미지 중 겹치는것 제외하고 삭제
+        poi.getPoiImgList().stream().filter(img-> newPoiImgList.stream().map(newImg-> newImg.getS3Key()).collect(Collectors.toList()).contains(img.getS3Key()))
+                        .forEach(img-> s3Service.deleteImageFromS3(img.getS3Key()));
 
-        poi.update(poiUpdateRequestDTO, detailedCategory, tagList, poiImgList);
+        poi.update(poiUpdateRequestDTO, detailedCategory, tagList, newPoiImgList);
 
         poiRepository.save(poi);
 
@@ -156,6 +168,51 @@ public class PoiServiceImpl implements PoiService{
         List<Review> reviews = reviewRepository.findReviewsByPoi_PoiId(poiId);
 
         List<ReviewResponseDTO> collect = reviews.stream().map(Review::mapToDTO).collect(Collectors.toList());
+
+        return collect;
+    }
+
+    @Override
+    public Long addInstantPoi(InstantPoiPostRequestDTO instantPoiPostRequestDTO, String username) {
+
+        // 동일 좌표에 공개 POI가 있는 경우 해당 POI ID를 리턴
+        List<Poi> pois = poiRepository.findByPoiLatitudeAndPoiLongitude(instantPoiPostRequestDTO.getPlace().getLatitude(), instantPoiPostRequestDTO.getPlace().getLongitude(), PageRequest.of(0, 1));
+        if(pois.size()!=0){
+            return pois.get(0).getPoiId();
+        }
+        User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no user such as : " + username));
+
+        Poi newInstantPoi = Poi.builder()
+                .poiAddress(instantPoiPostRequestDTO.getPlace().getAddress())
+                .poiLatitude(instantPoiPostRequestDTO.getPlace().getLatitude())
+                .poiLongitude(instantPoiPostRequestDTO.getPlace().getLongitude())
+                .sharable(false)
+                .poiRecentUpdateDate(LocalDateTime.now())
+                .user(user)
+                .build();
+
+        Poi save = poiRepository.save(newInstantPoi);
+
+
+        return save.getPoiId();
+    }
+
+    @Transactional
+    @Override
+    public List<PoiResponseDTO> findBboxPoiList(BboxPoiRequestDTO bboxPoiRequestDTO) {
+        // lt_lat, lt_lng, rb_lat, rb_lng
+        List<Double> bbox = bboxPoiRequestDTO.getBbox();
+
+        Double smLat = Math.min(bbox.get(0), bbox.get(2));
+        Double bLat = Math.max(bbox.get(0), bbox.get(2));
+        Double smLng = Math.min(bbox.get(1), bbox.get(3));
+        Double bLng = Math.max(bbox.get(1), bbox.get(3));
+
+
+
+        List<Poi> poisInBbox = poiRepository.findPoiInBbox(bboxPoiRequestDTO.getCategoryId(), smLat, bLat, smLng, bLng);
+
+        List<PoiResponseDTO> collect = poisInBbox.stream().map(poi -> Poi.mapToDTO(poi)).collect(Collectors.toList());
 
         return collect;
     }
