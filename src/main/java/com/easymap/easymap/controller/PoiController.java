@@ -91,9 +91,9 @@ public class PoiController {
     @GetMapping(value = "/{poiId}/review")
     public ResponseEntity<?> getReviews(@PathVariable(value = "poiId")Long poiId){
 
-        List<ReviewResponseDTO> reviews = poiService.getReviews(poiId);
+        List<ReviewResponseDTO> reviewList = poiService.getReviews(poiId);
 
-        return ReviewGetResponseDTO.success(reviews);
+        return ReviewGetResponseDTO.success(reviewList);
 
     }
 

@@ -1,7 +1,6 @@
 package com.easymap.easymap.dto.response.poi;
 
 import com.easymap.easymap.dto.response.ResponseDto;
-import com.easymap.easymap.dto.response.TestResponseDto;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,11 +8,11 @@ import org.springframework.http.ResponseEntity;
 @Getter
 public class PoiGetResponseDTO extends ResponseDto {
 
-    private PoiResponseDTO poiResponseDTO;
+    private PoiResponseDTO poi;
 
-    public PoiGetResponseDTO(PoiResponseDTO poiResponseDTO) {
+    public PoiGetResponseDTO(PoiResponseDTO poi) {
         super();
-        this.poiResponseDTO = poiResponseDTO;
+        this.poi = poi;
     }
 
     public static ResponseEntity<ResponseDto> success(PoiResponseDTO poiResponseDTO) {

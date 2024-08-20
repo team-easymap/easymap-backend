@@ -48,6 +48,7 @@ public class Review {
                 .userId(review.getUser().getUserId())
                 .nickname(review.getUser().getNickname())
                 .poiId(review.getPoi().getPoiId())
+                .poiName(review.getPoi().getPoiName())
                 .score(review.getScore())
                 .reviewText(review.getReviewText())
                 .createAt(review.getCreateAt())

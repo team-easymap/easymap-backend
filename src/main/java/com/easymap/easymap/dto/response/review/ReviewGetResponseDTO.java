@@ -11,11 +11,11 @@ import java.util.List;
 @Getter
 public class ReviewGetResponseDTO extends ResponseDto {
 
-    private List<ReviewResponseDTO> reviews;
+    private List<ReviewResponseDTO> reviewList;
 
     public ReviewGetResponseDTO(List<ReviewResponseDTO> reviews) {
         super();
-        this.reviews = reviews;
+        this.reviewList = reviews;
     }
 
     public static ResponseEntity<ResponseDto> success(List<ReviewResponseDTO> reviews) {

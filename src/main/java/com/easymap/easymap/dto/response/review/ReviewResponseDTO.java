@@ -22,6 +22,8 @@ public class ReviewResponseDTO {
 
     private Long poiId;
 
+    private String poiName;
+
     private Integer score;
 
     private String reviewText;

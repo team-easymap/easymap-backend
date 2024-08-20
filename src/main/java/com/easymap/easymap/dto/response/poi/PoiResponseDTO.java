@@ -1,6 +1,5 @@
 package com.easymap.easymap.dto.response.poi;
 
-import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
 import com.easymap.easymap.dto.response.category.DetailedCategoryResponseDTO;
 import com.easymap.easymap.dto.response.category.TagResponseDTO;
 import lombok.AllArgsConstructor;
@@ -34,9 +33,11 @@ public class PoiResponseDTO {
 
     private Double poiLongitude;
 
+    private Long categoryId;
+
     private String categoryName;
 
-    private DetailedCategoryResponseDTO detailedCategoryResponseDTO;
+    private DetailedCategoryResponseDTO detailedCategoryDTO;
 
     private List<TagResponseDTO> tagsOnPoi;
 

@@ -1,7 +1,6 @@
 package com.easymap.easymap.service;
 
 import com.easymap.easymap.dto.request.search.SearchAddressPostRequestDTO;
-import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.search.SearchResultAddressResponseDTO;
 import com.easymap.easymap.dto.response.search.SearchResultPoiResponseDTO;
 import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
@@ -52,8 +51,8 @@ public class SearchServiceImpl implements SearchService{
                 .build()).limit(20L).collect(Collectors.toList());
 
         return SearchResultResponseDTO.builder()
-                .addressResponseDTOList(addressResponseDTOList)
-                .poiResponseDTOList(poiResponseDTOList)
+                .adsData(addressResponseDTOList)
+                .poiData(poiResponseDTOList)
                 .build();
 
 

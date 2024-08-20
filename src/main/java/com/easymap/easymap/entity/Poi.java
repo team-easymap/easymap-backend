@@ -1,7 +1,6 @@
 package com.easymap.easymap.entity;
 
 import com.easymap.easymap.dto.request.poi.PoiUpdateRequestDTO;
-import com.easymap.easymap.dto.response.category.DetailedCategoryResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.entity.category.DetailedCategory;
 import com.easymap.easymap.entity.category.Tag;
@@ -88,7 +87,8 @@ public class Poi {
                 .userId(poi.user.getUserId())
                 .poiLatitude(poi.getPoiLatitude())
                 .poiLongitude(poi.getPoiLongitude())
-                .detailedCategoryResponseDTO(DetailedCategory.mapToDTO(poi.getDetailedCategory()))
+                .detailedCategoryDTO(DetailedCategory.mapToDTO(poi.getDetailedCategory()))
+                .categoryId(poi.getDetailedCategory().getCategory().getCategoryId())
                 .categoryName(poi.getDetailedCategory().getCategory().getCategoryName())
                 .tagsOnPoi(poi.getTagList().stream().map(t-> Tag.mapToDTO(t)).collect(Collectors.toList()))
                 .imgsOnPoi(poi.getPoiImgList().stream().map(img-> PoiImg.mapToDTO(img)).collect(Collectors.toList()))

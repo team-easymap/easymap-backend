@@ -10,11 +10,11 @@ import org.springframework.http.ResponseEntity;
 @Getter
 public class CoordinateResponseDTO extends ResponseDto {
 
-    private Coordinates coordinates;
+    private Coordinates data;
 
     public CoordinateResponseDTO(Coordinates coordinates) {
         super();
-        this.coordinates = coordinates;
+        this.data = coordinates;
     }
 
     public static ResponseEntity<ResponseDto> success(Coordinates coordinates) {
