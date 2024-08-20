@@ -1,6 +1,8 @@
 package com.easymap.easymap.service;
 
+import com.easymap.easymap.dto.request.search.AddressFromCoordinateGetDTO;
 import com.easymap.easymap.dto.request.search.SearchAddressPostRequestDTO;
+import com.easymap.easymap.dto.response.search.AddressResultDTO;
 import com.easymap.easymap.dto.response.search.SearchResultAddressResponseDTO;
 import com.easymap.easymap.dto.response.search.SearchResultPoiResponseDTO;
 import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
@@ -59,12 +61,23 @@ public class SearchServiceImpl implements SearchService{
     }
 
     @Override
-    public Coordinates postAddressToCoordinate(SearchAddressPostRequestDTO addressPostRequestDTO) {
+    public Coordinates postCoordinateToAddress(SearchAddressPostRequestDTO addressPostRequestDTO) {
 
         // 일단 vworld로 구현
         Coordinates coordinates = coordinateConverterUtil.convertByAddressFromVworld(addressPostRequestDTO);
 
 
         return coordinates;
+    }
+
+    @Override
+    public AddressResultDTO getAddressFromCoorinate(AddressFromCoordinateGetDTO coordinateGetDTO) {
+
+        Double latitude = coordinateGetDTO.getLatitude();
+        Double longitude = coordinateGetDTO.getLongitude();
+
+        AddressResultDTO addressResultDTO = coordinateConverterUtil.convertCoordinateIntoAddress(latitude, longitude);
+
+        return addressResultDTO;
     }
 }
