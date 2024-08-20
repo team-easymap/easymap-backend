@@ -9,7 +9,13 @@ INSERT INTO detailed_categories (category_id, detailed_category_name) VALUES
                                                                         ((SELECT category_id FROM categories WHERE category_name = '생활시설'), '카페'),
                                                                         ((SELECT category_id FROM categories WHERE category_name = '생활시설'), '주점'),
                                                                         ((SELECT category_id FROM categories WHERE category_name = '생활시설'), '미용실'),
-                                                                        ((SELECT category_id FROM categories WHERE category_name = '생활시설'), '편의점');
+                                                                        ((SELECT category_id FROM categories WHERE category_name = '생활시설'), '편의점'),
+                                                                        ((SELECT category_id FROM categories WHERE category_name = '생활시설'), '마트'),
+                                                                        ((SELECT category_id FROM categories WHERE category_name = '생활시설'), '은행'),
+                                                                        ((SELECT category_id FROM categories WHERE category_name = '생활시설'), '숙박시설'),
+                                                                        ((SELECT category_id FROM categories WHERE category_name = '생활시설'), '휠체어 대여소'),
+                                                                        ((SELECT category_id FROM categories WHERE category_name = '생활시설'), '전동 휠체어 충전소'),
+                                                                        ((SELECT category_id FROM categories WHERE category_name = '생활시설'), '이동기기 수리센터');
 
 -- 장애인용 화장실과 관련된 세부 카테고리 추가
 INSERT INTO detailed_categories (category_id, detailed_category_name) VALUES

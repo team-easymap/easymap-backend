@@ -1,8 +1,10 @@
 package com.easymap.easymap.controller;
 
+import com.easymap.easymap.dto.request.search.AddressFromCoordinateGetDTO;
 import com.easymap.easymap.dto.request.search.SearchAddressPostRequestDTO;
 import com.easymap.easymap.dto.response.coordinate.CoordinateResponseDTO;
-import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
+import com.easymap.easymap.dto.response.search.AddressResultDTO;
+import com.easymap.easymap.dto.response.search.AddressResultResponseDTO;
 import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
 import com.easymap.easymap.service.SearchService;
 import com.easymap.easymap.util.coordinate.dto.Coordinates;
@@ -28,12 +30,20 @@ public class SearchController {
     }
 
     @PostMapping("/coordinate")
-    public ResponseEntity<?> postAddressToCoordinate(@RequestBody SearchAddressPostRequestDTO addressPostRequestDTO){
+    public ResponseEntity<?> postCoordinateFromAddress(@RequestBody SearchAddressPostRequestDTO addressPostRequestDTO){
 
-        Coordinates coordinates = searchService.postAddressToCoordinate(addressPostRequestDTO);
+        Coordinates coordinates = searchService.postCoordinateToAddress(addressPostRequestDTO);
 
 
         return CoordinateResponseDTO.success(coordinates);
+    }
+
+    @GetMapping("/address")
+    public ResponseEntity<?> getAddressFromCoordinate(AddressFromCoordinateGetDTO coordinateGetDTO){
+
+        AddressResultDTO addressResultDTO = searchService.getAddressFromCoorinate(coordinateGetDTO);
+
+        return AddressResultResponseDTO.success(addressResultDTO);
     }
 
 }

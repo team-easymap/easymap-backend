@@ -17,9 +17,9 @@ public class Coordinates {
 
     private String address;
 
-    private Double latitude;
+    private Double lat;
 
-    private Double longitude;
+    private Double lng;
 
     //private String code; // 법정동 코드
 
@@ -34,8 +34,8 @@ public class Coordinates {
                 .status("FOUND")
                 .address(vworldCoordinateResponseDTO.getRefined().getAddressFullText())
                 //.code(vworldCoordinateResponseDTO.getRefined().getCode())
-                .latitude(Double.valueOf(vworldCoordinateResponseDTO.getResult().getPointCoordinates().getLatitude()))
-                .longitude(Double.valueOf(vworldCoordinateResponseDTO.getResult().getPointCoordinates().getLongitude()))
+                .lat(Double.valueOf(vworldCoordinateResponseDTO.getResult().getPointCoordinates().getLatitude()))
+                .lng(Double.valueOf(vworldCoordinateResponseDTO.getResult().getPointCoordinates().getLongitude()))
                 .build();
     }
 

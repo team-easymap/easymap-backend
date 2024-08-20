@@ -1,8 +1,10 @@
 package com.easymap.easymap.util.coordinate;
 
 import com.easymap.easymap.dto.request.search.SearchAddressPostRequestDTO;
+import com.easymap.easymap.dto.response.search.AddressResultDTO;
 import com.easymap.easymap.util.coordinate.dto.Coordinates;
 import com.easymap.easymap.util.coordinate.dto.juso.CoordinateData;
+import com.easymap.easymap.util.coordinate.dto.vworld.VworldAddressDTO;
 import com.easymap.easymap.util.coordinate.dto.vworld.VworldCoordinateResponseDTO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -106,5 +109,37 @@ public class CoordinateConverterUtil {
                 .encode()
                 .toUri();
         return uri;
+    }
+
+    public AddressResultDTO convertCoordinateIntoAddress(Double latitude, Double longitude) {
+        String url ="https://api.vworld.kr/req/address";
+        URI uri = UriComponentsBuilder.fromHttpUrl(url)
+                .queryParam("service", "address")
+                .queryParam("request", "getAddress")
+                .queryParam("key", vWorldConformKey)
+                .queryParam("point", latitude+","+longitude)
+                .queryParam("type", "BOTH")
+                .build()
+                .encode()
+                .toUri();
+        RestTemplate restTemplate = new RestTemplate();
+
+
+        List<VworldAddressDTO> execute = restTemplate.execute(uri, HttpMethod.GET, null, response -> {
+            JsonNode rootNode = objectMapper.readTree(response.getBody());
+
+            JsonNode responseNode = rootNode.path("response").path("result");
+
+            return objectMapper.convertValue(responseNode, new TypeReference<List<VworldAddressDTO>>() {
+            });
+        });
+
+
+
+        return AddressResultDTO.builder().zipcode(execute.get(0).getZipcode())
+                .road(execute.get(0).getType().equals("road")?execute.get(0).getText():execute.get(1).getText())
+                .parcel(execute.get(0).getType().equals("parcel")?execute.get(0).getText():execute.get(1).getText())
+                .build();
+
     }
 }
