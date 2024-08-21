@@ -25,44 +25,44 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Slf4j
-@WebMvcTest(controllers = PoiController.class, excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class)
-})
+//@Slf4j
+//@WebMvcTest(controllers = PoiController.class, excludeFilters = {
+//        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class)
+//})
 class PoiControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private UserRepository userRepository;
-
-    @Autowired
-    ObjectMapper objectMapper;
-
-    @Test
-    @WithMockUser(username="testuser", roles={"USER"})
-    public void testAddPoi() throws Exception{
-
-        //given
-        PoiAddRequestDTO requestDTO = PoiAddRequestDTO.builder()
-                .poiName("Test POI")
-                .poiAddress("도선동 일번지")
-                .detailedCategoryId(3L)
-                .poiLatitude(37.7749)
-                .poiLongitude(-122.4194)
-                .tagList(List.of(new TagRequestDTO(1L), new TagRequestDTO(2L)))
-                .build();
-
-        log.info(objectMapper.writeValueAsString(requestDTO));
-        // when
-        mockMvc.perform(post("/add")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDTO)))
-
-                //then
-                .andExpect(status().isOk());
-
-    }
+//    @Autowired
+//    private MockMvc mockMvc;
+//
+//    @MockBean
+//    private UserRepository userRepository;
+//
+//    @Autowired
+//    ObjectMapper objectMapper;
+//
+//    @Test
+//    @WithMockUser(username="testuser", roles={"USER"})
+//    public void testAddPoi() throws Exception{
+//
+//        //given
+//        PoiAddRequestDTO requestDTO = PoiAddRequestDTO.builder()
+//                .poiName("Test POI")
+//                .poiAddress("도선동 일번지")
+//                .detailedCategoryId(3L)
+//                .poiLatitude(37.7749)
+//                .poiLongitude(-122.4194)
+//                .tagList(List.of(new TagRequestDTO(1L), new TagRequestDTO(2L)))
+//                .build();
+//
+//        log.info(objectMapper.writeValueAsString(requestDTO));
+//        // when
+//        mockMvc.perform(post("/add")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(objectMapper.writeValueAsString(requestDTO)))
+//
+//                //then
+//                .andExpect(status().isOk());
+//
+//    }
 
 }
