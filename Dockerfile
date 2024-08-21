@@ -1,5 +1,5 @@
 # 1. Build stage
-FROM openjdk:17.0.1-jdk-slim AS build
+FROM eclipse-temurin:17-jdk-slim AS build
 
 # 2. Set working directory
 WORKDIR /app
@@ -21,7 +21,7 @@ COPY src /app/src
 RUN ./gradlew build -x test --no-daemon
 
 # 7. Create a minimal runtime image
-FROM openjdk:17.0.1-jre-slim
+FROM eclipse-temurin:17-jre-slim
 
 # 8. Set working directory
 WORKDIR /app
@@ -31,3 +31,6 @@ COPY --from=build /app/build/libs/*.jar /app/app.jar
 
 # 10. Specify the command to run the application
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+
+# 11. Expose the port the application runs on
+EXPOSE 8080
