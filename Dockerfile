@@ -4,33 +4,36 @@ FROM openjdk:17-oracle AS build
 # 2. Set working directory
 WORKDIR /app
 
-# 3. Copy Gradle wrapper and build files
+# 3. Install necessary tools (including xargs)
+RUN apt-get update && apt-get install -y findutils
+
+# 4. Copy Gradle wrapper and build files
 COPY gradlew /app/
 COPY gradle /app/gradle/
 COPY build.gradle /app/
 COPY settings.gradle /app/
 
-# 4. Download Gradle dependencies
+# 5. Download Gradle dependencies
 RUN chmod +x gradlew
 RUN ./gradlew build --no-daemon
 
-# 5. Copy the application source code
+# 6. Copy the application source code
 COPY src /app/src
 
-# 6. Build the application
+# 7. Build the application
 RUN ./gradlew build -x test --no-daemon
 
-# 7. Create a minimal runtime image
+# 8. Create a minimal runtime image
 FROM openjdk:17-oracle
 
-# 8. Set working directory
+# 9. Set working directory
 WORKDIR /app
 
-# 9. Copy the built JAR file from the build stage
+# 10. Copy the built JAR file from the build stage
 COPY --from=build /app/build/libs/*.jar /app/app.jar
 
-# 10. Specify the command to run the application
+# 11. Specify the command to run the application
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 
-# 11. Expose the port the application runs on
+# 12. Expose the port the application runs on
 EXPOSE 8080
