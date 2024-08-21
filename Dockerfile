@@ -37,6 +37,9 @@ RUN sed -i -e "s#{{GOOGLE_CLIENT_ID}}#${GOOGLE_CLIENT_ID}#g" /app/src/main/resou
     sed -i -e "s#{{VWORLD_CONFORM_KEY}}#${VWORLD_CONFORM_KEY}#g" /app/src/main/resources/application.yml && \
     sed -i -e "s#{{JUSO_CONFORM_KEY}}#${JUSO_CONFORM_KEY}#g" /app/src/main/resources/application.yml
 
+# 7.1. Debugging: Check the content of application.yml (for debugging only)
+RUN cat /app/src/main/resources/application.yml
+
 # 8. Build the application
 RUN ./gradlew build --no-daemon
 
