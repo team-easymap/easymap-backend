@@ -1,5 +1,5 @@
 # 1. Build stage
-FROM eclipse-temurin:17-jdk-slim AS build
+FROM openjdk:17-oracle AS build
 
 # 2. Set working directory
 WORKDIR /app
@@ -21,7 +21,7 @@ COPY src /app/src
 RUN ./gradlew build -x test --no-daemon
 
 # 7. Create a minimal runtime image
-FROM eclipse-temurin:17-jre-slim
+FROM openjdk:17-oracle
 
 # 8. Set working directory
 WORKDIR /app
