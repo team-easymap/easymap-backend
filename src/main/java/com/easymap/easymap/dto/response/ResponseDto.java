@@ -23,6 +23,11 @@ public class ResponseDto {
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
+    public static ResponseEntity<ResponseDto> notModified() {
+        ResponseDto responseBody = new ResponseDto(ResponseCode.NOT_MODIFIED, ResponseMessage.NOT_MODIFIED);
+        return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(responseBody);
+    }
+
     public static ResponseEntity<ResponseDto> validationFail() {
         ResponseDto responseBody = new ResponseDto(ResponseCode.VALIDATION_FAIL, ResponseMessage.VALIDATION_FAIL);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
@@ -41,6 +46,11 @@ public class ResponseDto {
     public static ResponseEntity<ResponseDto> notFound() {
         ResponseDto responseBody = new ResponseDto(ResponseCode.RESOURCE_NOT_FOUND, ResponseMessage.RESOURCE_NOT_FOUND);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
+    }
+
+    public static ResponseEntity<ResponseDto> conflict(String message) {
+        ResponseDto responseBody = new ResponseDto(ResponseCode.ETC, ResponseMessage.ETC + ":" + message);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody);
     }
 
     public static ResponseEntity<ResponseDto> internalServerError() {

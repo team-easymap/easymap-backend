@@ -14,4 +14,10 @@ public interface ResponseCode {
 
     String INTERNAL_SERVER_ERROR = "ISE";
 
+    String NOT_MODIFIED = "NM";
+
+    String USER_DEACTIVATED = "UD";
+
+    String ETC = "ETC";
+
 }

@@ -4,6 +4,7 @@ import com.easymap.easymap.config.CustomUserDetails;
 import com.easymap.easymap.entity.User;
 import com.easymap.easymap.handler.exception.AuthenticationException;
 import com.easymap.easymap.provider.JwtProvider;
+import com.easymap.easymap.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -22,9 +24,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RequiredArgsConstructor
+@Slf4j
 public class JwtTokenValidatorFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -45,15 +49,19 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
             if (token == null || jwtProvider.isExpired(token)) {
                 throw new AuthenticationException("Invalid or expired JWT token");
             }
-
             String email = jwtProvider.getEmail(token);
+            //탈퇴한 유저인지 확인
+            boolean isEligible = userRepository.existsUserByEmailAndDeactivationDateIsNull(email);
+            if(!isEligible) throw new AuthenticationException("Authenticate with deactivated user authentication");
             String nickname = jwtProvider.getNickname(token);
             String userRole = jwtProvider.getUserRole(token);
+            String oauthType = jwtProvider.getUserOauthType(token);
 
             User user = new User();
             user.setEmail(email);
             user.setNickname(nickname);
             user.setUserRole(userRole);
+            user.setOauthType(oauthType);
 
             CustomUserDetails userDetails = new CustomUserDetails(user);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
