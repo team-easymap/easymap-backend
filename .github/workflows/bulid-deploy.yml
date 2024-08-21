@@ -18,29 +18,28 @@ jobs:
       with:
         java-version: '17'
 
-      - name: Replace secrets in application.yml
-        run: |
-          sed -i -e "s#\${{secret.GOOGLE_CLIENT_ID}}#${{ secrets.GOOGLE_CLIENT_ID }}#g" ./src/main/resources/application.yml
-          sed -i -e "s#\${{secret.GOOGLE_CLIENT_SECRET}}#${{ secrets.GOOGLE_CLIENT_SECRET }}#g" ./src/main/resources/application.yml
-          sed -i -e "s#\${{secret.KAKAO_CLIEND_ID}}#${{ secrets.KAKAO_CLIEND_ID }}#g" ./src/main/resources/application.yml
-          sed -i -e "s#\${{secret.KAKAO_CLIENT_SECRET}}#${{ secrets.KAKAO_CLIENT_SECRET }}#g" ./src/main/resources/application.yml
+    - name: Replace secrets in application.yml
+      run: |
+        sed -i -e "s#\${{secret.GOOGLE_CLIENT_ID}}#${{ secrets.GOOGLE_CLIENT_ID }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.GOOGLE_CLIENT_SECRET}}#${{ secrets.GOOGLE_CLIENT_SECRET }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.KAKAO_CLIEND_ID}}#${{ secrets.KAKAO_CLIEND_ID }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.KAKAO_CLIENT_SECRET}}#${{ secrets.KAKAO_CLIENT_SECRET }}#g" ./src/main/resources/application.yml
 
-          sed -i -e "s#\${{secret.DATASOURCE_URL}}#${{ secrets.DATASOURCE_URL }}#g" ./src/main/resources/application.yml
-          sed -i -e "s#\${{secret.DB_USERNAME}}#${{ secrets.DB_USERNAME }}#g" ./src/main/resources/application.yml
-          sed -i -e "s#\${{secret.DB_PASSWORD}}#${{ secrets.DB_PASSWORD }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.DATASOURCE_URL}}#${{ secrets.DATASOURCE_URL }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.DB_USERNAME}}#${{ secrets.DB_USERNAME }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.DB_PASSWORD}}#${{ secrets.DB_PASSWORD }}#g" ./src/main/resources/application.yml
 
-          sed -i -e "s#\${{secret.JWT_SECRET}}#${{ secrets.JWT_SECRET }}#g" ./src/main/resources/application.yml
-          sed -i -e "s#\${{secret.REDIRECT_URL}}#${{ secrets.REDIRECT_URL }}#g" ./src/main/resources/application.yml
-          sed -i -e "s#\${{secret.REDIRECT_URL_FAILED}}#${{ secrets.REDIRECT_URL_FAILED }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.JWT_SECRET}}#${{ secrets.JWT_SECRET }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.REDIRECT_URL}}#${{ secrets.REDIRECT_URL }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.REDIRECT_URL_FAILED}}#${{ secrets.REDIRECT_URL_FAILED }}#g" ./src/main/resources/application.yml
 
-          sed -i -e "s#\${{secret.AWS_ACCESS_KEY}}#${{ secrets.AWS_ACCESS_KEY }}#g" ./src/main/resources/application.yml
-          sed -i -e "s#\${{secret.AWS_SECRET_ACCESS_KEY}}#${{ secrets.AWS_SECRET_ACCESS_KEY }}#g" ./src/main/resources/application.yml
-          sed -i -e "s#\${{secret.AWS_IMAGE_BUCKET_NAME}}#${{ secrets.AWS_IMAGE_BUCKET_NAME }}#g" ./src/main/resources/application.yml
-          sed -i -e "s#\${{secret.AWS_USER_RAWDATA_BUCKET_NAME}}#${{ secrets.AWS_USER_RAWDATA_BUCKET_NAME }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.AWS_ACCESS_KEY}}#${{ secrets.AWS_ACCESS_KEY }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.AWS_SECRET_ACCESS_KEY}}#${{ secrets.AWS_SECRET_ACCESS_KEY }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.AWS_IMAGE_BUCKET_NAME}}#${{ secrets.AWS_IMAGE_BUCKET_NAME }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.AWS_USER_RAWDATA_BUCKET_NAME}}#${{ secrets.AWS_USER_RAWDATA_BUCKET_NAME }}#g" ./src/main/resources/application.yml
 
-          sed -i -e "s#\${{secret.VWORLD_CONFORM_KEY}}#${{ secrets.VWORLD_CONFORM_KEY }}#g" ./src/main/resources/application.yml
-          sed -i -e "s#\${{secret.JUSO_CONFORM_KEY}}#${{ secrets.JUSO_CONFORM_KEY }}#g" ./src/main/resources/application.yml
-
+        sed -i -e "s#\${{secret.VWORLD_CONFORM_KEY}}#${{ secrets.VWORLD_CONFORM_KEY }}#g" ./src/main/resources/application.yml
+        sed -i -e "s#\${{secret.JUSO_CONFORM_KEY}}#${{ secrets.JUSO_CONFORM_KEY }}#g" ./src/main/resources/application.yml
 
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
@@ -67,5 +66,3 @@ jobs:
     #     task-definition: ecs-task-def.json
     #     service: your-ecs-service-name
     #     cluster: your-ecs-cluster-name
-    #     region: ${{ secrets.AWS_REGION }}
-    #     image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/your-ecr-repository:${{ github.sha }}
