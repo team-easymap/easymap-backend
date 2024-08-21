@@ -6,14 +6,14 @@ spring:
       client:
         registration:
           google:
-            client-id: ${{secret.GOOGLE_CLIENT_ID}}
-            client-secret: ${{secret.GOOGLE_CLIENT_SECRET}}
+            client-id: {{GOOGLE_CLIENT_ID}}
+            client-secret: {{GOOGLE_CLIENT_SECRET}}
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
             scope: profile, email
           kakao:
-            client-id: ${{secret.KAKAO_CLIEND_ID}}
-            client-secret: ${{secret.KAKAO_CLIENT_SECRET}}
+            client-id: {{KAKAO_CLIEND_ID}}
+            client-secret: {{KAKAO_CLIENT_SECRET}}
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
@@ -34,10 +34,10 @@ spring:
             user-name-attribute: id
 
   datasource:
-    url: jdbc:postgresql://${{secret.DATASOURCE_URL}}
+    url: jdbc:postgresql://{{DATASOURCE_URL}}
     driver-class-name: org.postgresql.Driver
-    username: ${{secret.DB_USERNAME}}
-    password: ${{secret.DB_PASSWORD}}
+    username: {{DB_USERNAME}}
+    password: {{DB_PASSWORD}}
   jpa:
     hibernate:
       ddl-auto: update
@@ -49,22 +49,22 @@ spring:
 
 jwt:
   secret: ${secret.JWT_SECRET}
-  redirect-url: ${{secret.REDIRECT_URL}}
-  redirect-url-failed: ${{secret.REDIRECT_URL_FAILED}}
+  redirect-url: {{REDIRECT_URL}}
+  redirect-url-failed: {{REDIRECT_URL_FAILED}}
 
 
 aws:
   s3:
-    access-key: ${{secret.AWS_ACCESS_KEY}}
-    secret-key: ${{secret.AWS_SECRET_ACCESS_KEY}}
+    access-key: {{AWS_ACCESS_KEY}}
+    secret-key: {{AWS_SECRET_ACCESS_KEY}}
     end-point: https://s3.ap-northeast-2.amazonaws.com
     region: ap-northeast-2
-    bucket-name: ${{secret.AWS_IMAGE_BUCKET_NAME}}
-    user-rawdata-bucket-name: ${{secret.AWS_USER_RAWDATA_BUCKET_NAME}}
+    bucket-name: {{AWS_IMAGE_BUCKET_NAME}}
+    user-rawdata-bucket-name: {{AWS_USER_RAWDATA_BUCKET_NAME}}
 
 apikey:
   vworld:
-    conformKey: ${{secret.VWORLD_CONFORM_KEY}}
+    conformKey: {{VWORLD_CONFORM_KEY}}
   juso:
     search:
-      conformKey: ${{secret.JUSO_CONFORM_KEY}}
+      conformKey: {{JUSO_CONFORM_KEY}}
