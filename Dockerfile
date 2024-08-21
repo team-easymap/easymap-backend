@@ -1,39 +1,29 @@
-# 1. Build stage
-FROM openjdk:17-oracle AS build
+# 1. Use Amazon Corretto 17 as the base image
+FROM amazoncorretto:17
 
-# 2. Set working directory
+# 2. Set the working directory
 WORKDIR /app
 
-# 3. Install necessary tools (including xargs) using microdnf
-RUN microdnf install findutils
-
-# 4. Copy Gradle wrapper and build files
+# 3. Copy necessary files
 COPY gradlew /app/
 COPY gradle /app/gradle/
 COPY build.gradle /app/
 COPY settings.gradle /app/
 
-# 5. Download Gradle dependencies
+# 4. Give execution permissions to Gradle wrapper
 RUN chmod +x gradlew
+
+# 5. Verify Java version
+RUN java -version
+
+# 6. Build the application
 RUN ./gradlew build --no-daemon
 
-# 6. Copy the application source code
-COPY src /app/src
+# 7. Copy the application source code
+COPY . .
 
-# 7. Build the application
-RUN ./gradlew build -x test --no-daemon
-
-# 8. Create a minimal runtime image
-FROM openjdk:17-oracle
-
-# 9. Set working directory
-WORKDIR /app
-
-# 10. Copy the built JAR file from the build stage
-COPY --from=build /app/build/libs/*.jar /app/app.jar
-
-# 11. Specify the command to run the application
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
-
-# 12. Expose the port the application runs on
+# 8. Expose port 8080
 EXPOSE 8080
+
+# 9. Define the entry point for the container
+CMD ["java", "-jar", "build/libs/your-app.jar"]

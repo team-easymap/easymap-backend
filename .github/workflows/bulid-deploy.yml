@@ -13,12 +13,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up JDK 17 (Oracle OpenJDK)
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'zulu'  
-        java-version: '17'
-
     - name: Replace secrets in application.yml
       run: |
         sed -i -e "s#{{GOOGLE_CLIENT_ID}}#${{ secrets.GOOGLE_CLIENT_ID }}#g" ./src/main/resources/application.yml
@@ -44,12 +38,6 @@ jobs:
 
     - name: Verify application.yml content
       run: cat ./src/main/resources/application.yml
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
-
-    - name: Build with Gradle
-      run: ./gradlew build
 
     - name: Log in to Amazon ECR
       id: ecr-login
