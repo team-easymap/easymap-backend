@@ -4,8 +4,8 @@ FROM openjdk:17-oracle AS build
 # 2. Set working directory
 WORKDIR /app
 
-# 3. Install necessary tools (including xargs)
-RUN apt-get update && apt-get install -y findutils
+# 3. Install necessary tools (including xargs) using microdnf
+RUN microdnf install findutils
 
 # 4. Copy Gradle wrapper and build files
 COPY gradlew /app/
