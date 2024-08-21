@@ -55,8 +55,8 @@ jwt:
 
 aws:
   s3:
-    access-key: ${{secret.AWS_SECRET_ACCESS_KEY}}
-    secret-key: ${{secret.AWS_SECRET_KEY}}
+    access-key: ${{secret.AWS_ACCESS_KEY}}
+    secret-key: ${{secret.AWS_SECRET_ACCESS_KEY}}
     end-point: https://s3.ap-northeast-2.amazonaws.com
     region: ap-northeast-2
     bucket-name: ${{secret.AWS_IMAGE_BUCKET_NAME}}
