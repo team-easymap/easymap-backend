@@ -22,4 +22,4 @@ COPY src /app/src
 RUN ./gradlew build --no-daemon
 
 # 9. Run the application
-CMD ["java", "-jar", "build/libs/easymap-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", ,"-Dspring.profiles.active=prd", "build/libs/easymap-0.0.1-SNAPSHOT.jar"]
