@@ -34,6 +34,12 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = null;
 
+        String path = request.getRequestURI();
+        if (path.startsWith("/api/v1/test/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 쿠키에서 JWT 토큰 가져오기
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
