@@ -48,7 +48,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 jwt:
-  secret: ${secret.JWT_SECRET}
+  secret: {{JWT_SECRET}}
   redirect-url: {{REDIRECT_URL}}
   redirect-url-failed: {{REDIRECT_URL_FAILED}}
 
