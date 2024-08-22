@@ -8,9 +8,6 @@ import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
 import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
-import com.easymap.easymap.dto.response.search.SearchResultAddressResponseDTO;
-import com.easymap.easymap.dto.response.search.SearchResultPoiResponseDTO;
-import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
 import com.easymap.easymap.entity.*;
 import com.easymap.easymap.entity.category.Category;
 import com.easymap.easymap.entity.category.DetailedCategory;
@@ -18,12 +15,12 @@ import com.easymap.easymap.entity.category.Tag;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.*;
 import com.easymap.easymap.service.s3.S3Service;
-import com.easymap.easymap.service.s3.S3ServiceImpl;
+import com.easymap.easymap.util.PoiUtil;
 import com.easymap.easymap.util.search.SearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +47,7 @@ public class PoiServiceImpl implements PoiService{
 
     private final ReviewRepository reviewRepository;
 
-    private final SearchUtil searchUtil;
+    private final PedestrianNodeRepository pedestrianNodeRepository;
 
     private final S3Service s3Service;
 
@@ -85,7 +82,7 @@ public class PoiServiceImpl implements PoiService{
         List<PoiImg> poiImgs = poiAddRequestDTO.getImages().stream().map(s3key -> PoiImg.builder().poi(poi).s3Key(s3key.getS3Key()).build()).collect(Collectors.toList());
         poi.setPoiImgList(poiImgs);
 
-        
+
         Poi save = poiRepository.save(poi);
 
         return save.getPoiId();
@@ -215,6 +212,32 @@ public class PoiServiceImpl implements PoiService{
         List<PoiResponseDTO> collect = poisInBbox.stream().map(poi -> Poi.mapToDTO(poi)).collect(Collectors.toList());
 
         return collect;
+    }
+
+    @Override
+    public PedestrianNode findClosestNodeWithinDistance(Long poiId) {
+        Poi poi = poiRepository.findPoiByPoiIdAndDeletedAtIsNullAndSharableIsTrue(poiId).orElseThrow(
+                () -> new ResourceNotFoundException("POI not found")
+        );
+
+        Double poiLatitude = poi.getPoiLatitude();
+        Double poiLongitude = poi.getPoiLongitude();
+
+        Point pointFromCoordinates = PoiUtil.createPointFromCoordinates(poiLongitude, poiLatitude);
+
+        double initialDistance = 10.0;
+        double maxDistance = 1000.0;
+        double increment = 50.0;
+
+        Optional<PedestrianNode> closestNodeWithinDistance = Optional.empty();
+
+        while (!closestNodeWithinDistance.isPresent() && initialDistance <= maxDistance) {
+            closestNodeWithinDistance = pedestrianNodeRepository.findClosestNodeWithinDistance(pointFromCoordinates, initialDistance);
+            initialDistance += increment;
+        }
+
+        // 가장 가까운 노드가 없을 경우 예외 처리
+        return closestNodeWithinDistance.orElseThrow(() -> new ResourceNotFoundException("No pedestrian node found within the given distance."));
     }
 
 

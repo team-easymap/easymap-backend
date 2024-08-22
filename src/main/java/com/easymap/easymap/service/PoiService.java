@@ -9,6 +9,7 @@ import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
 import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
+import com.easymap.easymap.entity.PedestrianNode;
 
 import java.util.List;
 
@@ -28,4 +29,6 @@ public interface PoiService {
     Long addInstantPoi(InstantPoiPostRequestDTO instantPoiPostRequestDTO, String username);
 
     List<PoiResponseDTO> findBboxPoiList(BboxPoiRequestDTO bboxPoiRequestDTO);
+
+    PedestrianNode findClosestNodeWithinDistance(Long poiId);
 }
