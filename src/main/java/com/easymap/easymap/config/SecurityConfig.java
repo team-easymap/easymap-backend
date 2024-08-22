@@ -51,10 +51,13 @@ public class SecurityConfig implements WebMvcConfigurer {
     private final String redirectUrlFailed;
     private final JwtProvider jwtProvider;
 
+    @Value("${front-server.url}")
+    private String frontServerUrl;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "favicon.ico") // React 앱 주소
+                .allowedOrigins(frontServerUrl, "favicon.ico") // React 앱 주소
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
@@ -75,6 +78,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/test/**").permitAll()
                         .requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().permitAll()
                 )
