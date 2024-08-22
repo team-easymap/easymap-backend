@@ -48,7 +48,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 jwt:
-  secret: ${secret.JWT_SECRET}
+  secret: {{JWT_SECRET}}
   redirect-url: {{REDIRECT_URL}}
   redirect-url-failed: {{REDIRECT_URL_FAILED}}
 
@@ -61,6 +61,9 @@ aws:
     region: ap-northeast-2
     bucket-name: {{AWS_IMAGE_BUCKET_NAME}}
     user-rawdata-bucket-name: {{AWS_USER_RAWDATA_BUCKET_NAME}}
+
+front-server:
+  url: {{FRONT_SERVER_URL}}
 
 apikey:
   vworld:
