@@ -3,7 +3,7 @@ Resources:
   - TargetService:
       Type: AWS::ECS::Service
       Properties:
-        TaskDefinition: "backend"
+        TaskDefinition: "backend:4"
         LoadBalancerInfo:
           ContainerName: "easymap-backend"
           ContainerPort: 8080
