@@ -1,13 +1,11 @@
 package com.easymap.easymap.dto.process.map.pedestrian;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.geolatte.geom.Geometry;
+import lombok.*;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geomgraph.Edge;
 
 @Getter
+@EqualsAndHashCode
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,5 +24,18 @@ public class PedestrianLinkProcessDTO {
     private String sggNm;
 
     private String endNm;
+
+    private Double linkLen;
+
+    private Integer slopeMin;
+
+    private Integer slopeMax;
+
+    private Integer slopeMedian;
+
+    private Integer slopeAvg;
+
+    private Integer slopeCount;
+
 
 }
