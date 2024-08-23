@@ -12,10 +12,7 @@ import com.easymap.easymap.dto.response.map.RouteNodeDTO;
 import com.easymap.easymap.entity.*;
 import com.easymap.easymap.entity.category.Category;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
-import com.easymap.easymap.repository.DetailedCategoryRepository;
-import com.easymap.easymap.repository.PoiRepository;
-import com.easymap.easymap.repository.UserRepository;
-import com.easymap.easymap.repository.UserRouteRepository;
+import com.easymap.easymap.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,6 +48,8 @@ public class MapServiceImpl implements MapService{
     private final DetailedCategoryRepository detailedCategoryRepository;
 
     private final UserRouteRepository userRouteRepository;
+
+    private final PedestrianNodeRepository pedestrianNodeRepository;
 
     private final AmazonS3 amazonS3Client;
 
