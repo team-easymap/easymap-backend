@@ -63,8 +63,8 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
     - name: Upload AppSpec to S3
-       run: |
-         aws s3 cp appspec.yml s3://easymap-prd-local-images/build/appspec.yml
+      run: |
+        aws s3 cp appspec.yml s3://easymap-prd-local-images/build/appspec.yml
 
 
     - name: Deploy to ECS using CodeDeploy
