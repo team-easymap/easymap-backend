@@ -62,9 +62,25 @@ jobs:
         docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-    # - name: Deploy to ECS
-    #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-    #   with:
-    #     task-definition: ecs-task-def.json
-    #     service: your-ecs-service-name
-    #     cluster: your-ecs-cluster-name
+    - name: Deploy to ECS using CodeDeploy
+      env:
+        ECR_IMAGE: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/easymap-backend:latest
+        ECS_CLUSTER_NAME: ${{ secrets.ECS_CLUSTER_NAME }} 
+        ECS_SERVICE_NAME: ${{ secrets.ECS_SERVICE_NAME }} 
+        CODEDEPLOY_APPLICATION_NAME: ${{ secrets.CODEDEPLOY_APPLICATION_NAME }} 
+        CODEDEPLOY_DEPLOYMENT_GROUP_NAME: ${{ secrets.CODEDEPLOY_DEPLOYMENT_GROUP_NAME }} 
+      run: |
+        aws ecs update-service \
+          --cluster $ECS_CLUSTER_NAME \
+          --service $ECS_SERVICE_NAME \
+          --force-new-deployment \
+          --task-definition $ECR_IMAGE
+
+        # appspec.yaml 파일을 읽어서 변수에 저장
+        APPSPEC_CONTENT=$(cat appspec.yaml)
+
+        # CodeDeploy를 사용하여 배포
+        aws deploy create-deployment \
+          --application-name $CODEDEPLOY_APPLICATION_NAME \
+          --deployment-group-name $CODEDEPLOY_DEPLOYMENT_GROUP_NAME \
+          --revision "revisionType=AppSpecContent,appSpecContent={\"content\": \"$APPSPEC_CONTENT\"}"
