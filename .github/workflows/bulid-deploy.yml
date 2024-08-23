@@ -62,6 +62,11 @@ jobs:
         docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
+    - name: Upload AppSpec to S3
+       run: |
+         aws s3 cp appspec.yml s3://easymap-prd-local-images/build/appspec.yml
+
+
     - name: Deploy to ECS using CodeDeploy
       env:
         ECR_IMAGE: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/easymap-backend:latest
@@ -77,8 +82,7 @@ jobs:
         #   --task-definition $ECR_IMAGE
 
         # CodeDeploy를 사용하여 배포
-           run: |
-          aws deploy create-deployment \
-            --application-name $CODEDEPLOY_APPLICATION_NAME \
-            --deployment-group-name $CODEDEPLOY_DEPLOYMENT_GROUP_NAME \
-            --revision "revisionType=AppSpecContent,appSpecContent={\"content\": \"version: 1\nResources:\n  - TargetService:\n      Type: AWS::ECS::Service\n      Properties:\n        TaskDefinition: \"backend\"\n        LoadBalancerInfo:\n          ContainerName: \"easymap-backend\"\n          ContainerPort: 8080\n\"}"
+        aws deploy create-deployment \
+          --application-name $CODEDEPLOY_APPLICATION_NAME \
+          --deployment-group-name $CODEDEPLOY_DEPLOYMENT_GROUP_NAME \
+          --revision "revisionType=S3,s3Location={bucket=YOUR_BUCKET_NAME,key=path/to/appspec.yml,bundleType=YAML}"
