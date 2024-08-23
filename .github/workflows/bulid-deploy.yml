@@ -76,9 +76,9 @@ jobs:
         #   --force-new-deployment \
         #   --task-definition $ECR_IMAGE
 
-      - name: Deploy to AWS CodeDeploy
-        run: |
+        # CodeDeploy를 사용하여 배포
+           run: |
           aws deploy create-deployment \
-            --application-name YOUR_APPLICATION_NAME \
-            --deployment-group-name YOUR_DEPLOYMENT_GROUP_NAME \
-            --revision "revisionType=AppSpecContent,appSpecContent={\"content\": \"version: 1\\nResources:\\n  - TargetService:\\n      Type: AWS::ECS::Service\\n      Properties:\\n        TaskDefinition: \\\"backend\\\"\\n        LoadBalancerInfo:\\n          ContainerName: \\\"easymap-backend\\\"\\n          ContainerPort: 8080\\n\"}"
+            --application-name $CODEDEPLOY_APPLICATION_NAME \
+            --deployment-group-name $CODEDEPLOY_DEPLOYMENT_GROUP_NAME \
+            --revision "revisionType=AppSpecContent,appSpecContent={\"content\": \"version: 1\nResources:\n  - TargetService:\n      Type: AWS::ECS::Service\n      Properties:\n        TaskDefinition: \"backend\"\n        LoadBalancerInfo:\n          ContainerName: \"easymap-backend\"\n          ContainerPort: 8080\n\"}"
