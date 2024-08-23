@@ -76,12 +76,9 @@ jobs:
         #   --force-new-deployment \
         #   --task-definition $ECR_IMAGE
 
-        # appspec.yaml 파일을 읽어서 임시 JSON 파일에 저장
-        echo "{\"content\": $(jq -Rs . < appspec.yml)}" > appspec-content.json
-
         # CodeDeploy를 사용하여 배포
-        aws deploy create-deployment \
-          --application-name $CODEDEPLOY_APPLICATION_NAME \
-          --deployment-group-name $CODEDEPLOY_DEPLOYMENT_GROUP_NAME \
-          --revision file://appspec-content.json\
-          --debug
+           run: |
+          aws deploy create-deployment \
+            --application-name YOUR_APPLICATION_NAME \
+            --deployment-group-name YOUR_DEPLOYMENT_GROUP_NAME \
+            --revision "revisionType=AppSpecContent,appSpecContent={\"content\": \"version: 1\nResources:\n  - TargetService:\n      Type: AWS::ECS::Service\n      Properties:\n        TaskDefinition: \"backend\"\n        LoadBalancerInfo:\n          ContainerName: \"easymap-backend\"\n          ContainerPort: 8080\n\"}"
