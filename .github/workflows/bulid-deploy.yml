@@ -83,4 +83,5 @@ jobs:
         aws deploy create-deployment \
           --application-name $CODEDEPLOY_APPLICATION_NAME \
           --deployment-group-name $CODEDEPLOY_DEPLOYMENT_GROUP_NAME \
-          --revision file://appspec-content.json
+          --revision file://appspec-content.json\
+          --debug
