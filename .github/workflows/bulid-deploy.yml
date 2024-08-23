@@ -70,14 +70,14 @@ jobs:
         CODEDEPLOY_APPLICATION_NAME: ${{ secrets.CODEDEPLOY_APPLICATION_NAME }} 
         CODEDEPLOY_DEPLOYMENT_GROUP_NAME: ${{ secrets.CODEDEPLOY_DEPLOYMENT_GROUP_NAME }} 
       run: |
-        aws ecs update-service \
-          --cluster $ECS_CLUSTER_NAME \
-          --service $ECS_SERVICE_NAME \
-          --force-new-deployment \
-          --task-definition $ECR_IMAGE
+        # aws ecs update-service \
+        #   --cluster $ECS_CLUSTER_NAME \
+        #   --service $ECS_SERVICE_NAME \
+        #   --force-new-deployment \
+        #   --task-definition $ECR_IMAGE
 
         # appspec.yaml 파일을 읽어서 변수에 저장
-        APPSPEC_CONTENT=$(cat appspec.yaml)
+        APPSPEC_CONTENT=$(cat appspec.yaml | jq -Rs .)
 
         # CodeDeploy를 사용하여 배포
         aws deploy create-deployment \
