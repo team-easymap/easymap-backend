@@ -67,7 +67,7 @@ jobs:
         ECR_IMAGE: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/easymap-backend:latest
         ECS_CLUSTER_NAME: ${{ secrets.ECS_CLUSTER_NAME }} 
         ECS_SERVICE_NAME: ${{ secrets.ECS_SERVICE_NAME }} 
-        CODEDEPLOY_APPLICATION_NAME: ${{ secrets.CODEDEPLOY_APPLICATION_NAME }} APPSPEC
+        CODEDEPLOY_APPLICATION_NAME: ${{ secrets.CODEDEPLOY_APPLICATION_NAME }}
         CODEDEPLOY_DEPLOYMENT_GROUP_NAME: ${{ secrets.CODEDEPLOY_DEPLOYMENT_GROUP_NAME }} 
       run: |
         # aws ecs update-service \
