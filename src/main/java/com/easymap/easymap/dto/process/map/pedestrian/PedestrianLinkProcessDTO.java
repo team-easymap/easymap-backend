@@ -1,5 +1,8 @@
 package com.easymap.easymap.dto.process.map.pedestrian;
 
+import com.easymap.easymap.entity.PedestrianLink;
+import com.easymap.easymap.entity.PedestrianLinkSlopeStat;
+import com.easymap.easymap.entity.PedestrianNode;
 import lombok.*;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geomgraph.Edge;
@@ -19,11 +22,6 @@ public class PedestrianLinkProcessDTO {
 
     private PedestrianNodeProcessDTO toNodeDTO;
 
-    private String bjdCd;
-
-    private String sggNm;
-
-    private String endNm;
 
     private Double linkLen;
 
@@ -36,6 +34,25 @@ public class PedestrianLinkProcessDTO {
     private Integer slopeAvg;
 
     private Integer slopeCount;
+
+    public PedestrianLinkProcessDTO(PedestrianLink pedestrianLink) {
+        PedestrianLinkSlopeStat slopeStat = pedestrianLink.getSlopeStat();
+
+        this.linkId = pedestrianLink.getLinkId();
+        this.geom = pedestrianLink.getGeom();
+        this.fromNodeDTO = PedestrianNode.mapToDTO(pedestrianLink.getStartNode());
+        this.toNodeDTO = PedestrianNode.mapToDTO(pedestrianLink.getEndNode());
+
+        this.linkLen = pedestrianLink.getLength();
+
+        this.slopeMax = slopeStat.getSlopeMax();
+        this.slopeMin = slopeStat.getSlopeMin();
+        this.slopeMedian = slopeStat.getSlopeMedian();
+        this.slopeAvg = slopeStat.getSlopeAvg();
+        this.slopeCount = slopeStat.getSlopeCount();
+
+
+    }
 
 
 }

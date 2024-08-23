@@ -1,5 +1,6 @@
 package com.easymap.easymap.entity;
 
+import com.easymap.easymap.dto.process.map.pedestrian.PedestrianNodeProcessDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,4 +37,15 @@ public class PedestrianNode {
 
     @OneToMany(mappedBy = "endNode")
     private List<PedestrianLink> incomingLinks;
+
+    public static PedestrianNodeProcessDTO mapToDTO(PedestrianNode pedestrianNode) {
+        return PedestrianNodeProcessDTO.builder()
+                .nodeId(pedestrianNode.getNodeId())
+                .geom(pedestrianNode.getGeom())
+                .legalDistrictCode(pedestrianNode.getLegalDistrictCode())
+                .districtName(pedestrianNode.getDistrictName())
+                .subDistrictName(pedestrianNode.getSubDistrictName())
+                .build();
+
+    }
 }

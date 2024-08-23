@@ -137,11 +137,14 @@ public class MapServiceImpl implements MapService{
         Poi startPoi = poiRepository.findById(requestDTO.getStartPoiId()).orElseThrow(() -> new ResourceNotFoundException("no poi : " + requestDTO.getStartPoiId()));
         Poi endPoi = poiRepository.findById(requestDTO.getEndPoiId()).orElseThrow(() -> new ResourceNotFoundException("no poi : " + requestDTO.getStartPoiId()));
 
+        List<PedestrianNode> nodeList = new ArrayList<>();
+        List<PedestrianLink> linkList = new ArrayList<>();
+
 
         // 노드 리스트 가져오기
-        List<PedestrianNodeProcessDTO> nodeProcessDTOList = new ArrayList<>();
+        List<PedestrianNodeProcessDTO> nodeProcessDTOList  = nodeList.stream().map(node-> PedestrianNode.mapToDTO(node)).collect(Collectors.toList());
         // 링크 리스트 가져오기
-        List<PedestrianLinkProcessDTO> linkProcessDTOList = new ArrayList<>();
+        List<PedestrianLinkProcessDTO> linkProcessDTOList = linkList.stream().map(PedestrianLinkProcessDTO::new).collect(Collectors.toList());
 
         // 시작점, 도착점에 가장 가까운 노드 산출
         PedestrianNodeProcessDTO startNode = new PedestrianNodeProcessDTO();
