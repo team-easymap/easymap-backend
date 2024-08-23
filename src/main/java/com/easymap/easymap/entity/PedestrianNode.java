@@ -1,14 +1,13 @@
 package com.easymap.easymap.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.Point;
+
+import java.util.List;
 
 @Getter
 @Builder
@@ -31,4 +30,10 @@ public class PedestrianNode {
 
     @Column(name = "emd_nm")
     private String subDistrictName; // 읍 면 동
+
+    @OneToMany(mappedBy = "startNode")
+    private List<PedestrianLink> outgoingLinks;
+
+    @OneToMany(mappedBy = "endNode")
+    private List<PedestrianLink> incomingLinks;
 }
