@@ -1,10 +1,13 @@
 package com.easymap.easymap.controller;
 
 import com.easymap.easymap.dto.request.map.MapBboxRequestDTO;
+import com.easymap.easymap.dto.request.map.RouteGetRequestDTO;
 import com.easymap.easymap.dto.request.map.UserRoutePostRequestDTO;
 import com.easymap.easymap.dto.response.ResponseDto;
 import com.easymap.easymap.dto.response.map.MapPoisDTO;
 import com.easymap.easymap.dto.response.map.MapPoisResponseDTO;
+import com.easymap.easymap.dto.response.map.RouteDTO;
+import com.easymap.easymap.dto.response.map.RouteResponseDTO;
 import com.easymap.easymap.service.MapService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +43,13 @@ public class MapController {
 
         log.info("userRouteId : "+userRouteId);
         return ResponseDto.success();
+    }
+
+    @GetMapping("/routes")
+    public ResponseEntity<?> getRoute(RouteGetRequestDTO requestDTO){
+
+        List<RouteDTO> routeBetweenPois = mapService.getRouteBetweenPois(requestDTO);
+
+        return RouteResponseDTO.success(routeBetweenPois);
     }
 }
