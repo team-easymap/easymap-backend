@@ -77,7 +77,7 @@ jobs:
         #   --task-definition $ECR_IMAGE
 
         # appspec.yaml 파일을 읽어서 변수에 저장
-        APPSPEC_CONTENT=$(cat appspec.yml | jq -Rs . | sed 's/"/\\"/g')
+        APPSPEC_CONTENT=$(cat appspec.yml | jq -Rs . | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | tr -d '\n')
 
         # CodeDeploy를 사용하여 배포
         aws deploy create-deployment \
