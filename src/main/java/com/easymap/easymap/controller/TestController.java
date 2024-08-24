@@ -1,8 +1,6 @@
 package com.easymap.easymap.controller;
 
 import com.easymap.easymap.dto.response.TestResponseDto;
-import com.easymap.easymap.entity.PedestrianNode;
-import com.easymap.easymap.service.PoiService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

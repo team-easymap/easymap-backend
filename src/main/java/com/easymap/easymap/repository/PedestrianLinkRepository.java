@@ -1,7 +1,6 @@
 package com.easymap.easymap.repository;
 
-import com.easymap.easymap.entity.PedestrianLink;
-import org.springframework.data.jpa.repository.EntityGraph;
+import com.easymap.easymap.entity.pedestrian.PedestrianLink;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

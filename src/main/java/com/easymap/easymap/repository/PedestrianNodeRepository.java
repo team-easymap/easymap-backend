@@ -1,6 +1,6 @@
 package com.easymap.easymap.repository;
 
-import com.easymap.easymap.entity.PedestrianNode;
+import com.easymap.easymap.entity.pedestrian.PedestrianNode;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,11 +1,10 @@
 package com.easymap.easymap.dto.process.map.pedestrian;
 
-import com.easymap.easymap.entity.PedestrianLink;
-import com.easymap.easymap.entity.PedestrianLinkSlopeStat;
-import com.easymap.easymap.entity.PedestrianNode;
+import com.easymap.easymap.entity.pedestrian.PedestrianLink;
+import com.easymap.easymap.entity.pedestrian.PedestrianLinkSlopeStat;
+import com.easymap.easymap.entity.pedestrian.PedestrianNode;
 import lombok.*;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geomgraph.Edge;
 
 @Getter
 @EqualsAndHashCode
