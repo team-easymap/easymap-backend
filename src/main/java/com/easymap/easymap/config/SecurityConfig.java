@@ -189,7 +189,7 @@ class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler
             email = (String) ((Map<String, Object>) oauth2User.getAttribute("kakao_account")).get("email");
         }
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(email).orElseThrow();
-        String jwt = jwtProvider.generateToken(user, 60 * 60 * 100L);
+        String jwt = jwtProvider.generateToken(user, 60 * 60 * 1000L);
 
         Cookie cookie = new Cookie("jwt", jwt);
         cookie.setPath("/");
