@@ -11,6 +11,8 @@ import com.easymap.easymap.dto.response.map.RouteDTO;
 import com.easymap.easymap.dto.response.map.RouteNodeDTO;
 import com.easymap.easymap.entity.*;
 import com.easymap.easymap.entity.category.Category;
+ import com.easymap.easymap.entity.pedestrian.PedestrianLink;
+import com.easymap.easymap.entity.pedestrian.PedestrianNode;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.*;
 import lombok.RequiredArgsConstructor;
