@@ -46,9 +46,11 @@ public class MapController {
     }
 
     @GetMapping("/routes")
-    public ResponseEntity<?> getRoute(RouteGetRequestDTO requestDTO){
+    public ResponseEntity<?> getRoute(@ModelAttribute @Valid RouteGetRequestDTO requestDTO){
+        log.info(requestDTO.toString());
 
         List<RouteDTO> routeBetweenPois = mapService.getRouteBetweenPois(requestDTO);
+
 
         return RouteResponseDTO.success(routeBetweenPois);
     }

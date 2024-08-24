@@ -21,10 +21,7 @@ import org.jgrapht.GraphPath;
 import org.jgrapht.alg.interfaces.AStarAdmissibleHeuristic;
 import org.jgrapht.alg.shortestpath.AStarShortestPath;
 import org.jgrapht.graph.SimpleWeightedGraph;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -51,10 +48,18 @@ public class MapServiceImpl implements MapService{
 
     private final PedestrianNodeRepository pedestrianNodeRepository;
 
+    private final PedestrianLinkRepository pedestrianLinkRepository;
+
     private final AmazonS3 amazonS3Client;
 
     @Value("${aws.s3.user-rawdata-bucket-name}")
     private String bucketName;
+
+    private static final double EARTH_RADIUS = 6378137; // 지구의 반경 (미터)
+
+    private static final double maxPossibleAngle = 5.5;
+
+    final static Double wheelChairSpeed = 1.5;
 
 
 
@@ -129,31 +134,52 @@ public class MapServiceImpl implements MapService{
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<RouteDTO> getRouteBetweenPois(RouteGetRequestDTO requestDTO) {
+        GeometryFactory geometryFactory = new GeometryFactory();
+
+        final double paddingMeter = 50.0;
+
         // 두 POI 점을 기준으로 일정 범위에서 존재하는 노드, 링크 데이터를 가져오는 로직
 
         // 시작점, 끝점 확인
         Poi startPoi = poiRepository.findById(requestDTO.getStartPoiId()).orElseThrow(() -> new ResourceNotFoundException("no poi : " + requestDTO.getStartPoiId()));
         Poi endPoi = poiRepository.findById(requestDTO.getEndPoiId()).orElseThrow(() -> new ResourceNotFoundException("no poi : " + requestDTO.getStartPoiId()));
 
-        List<PedestrianNode> nodeList = new ArrayList<>();
-        List<PedestrianLink> linkList = new ArrayList<>();
+        // 시작점 끝점을 바탕으로 한 bbox 생성
+
+        Point startPoint = geometryFactory.createPoint(new Coordinate(startPoi.getPoiLongitude(), startPoi.getPoiLatitude()));
+        startPoint.setSRID(4326);
+        Point endPoint = geometryFactory.createPoint(new Coordinate(endPoi.getPoiLongitude(), endPoi.getPoiLatitude()));
+        endPoint.setSRID(4326);
+
+        Map<String, Double> map = makeBbox(startPoint, endPoint, paddingMeter);
 
 
         // 노드 리스트 가져오기
+        List<PedestrianNode> nodeList = pedestrianNodeRepository.findPedestrianNodesInBbox(map.get("minLng"), map.get("minLat"), map.get("maxLng"), map.get("maxLat"));
         List<PedestrianNodeProcessDTO> nodeProcessDTOList  = nodeList.stream().map(node-> PedestrianNode.mapToDTO(node)).collect(Collectors.toList());
+
+
         // 링크 리스트 가져오기
-        List<PedestrianLinkProcessDTO> linkProcessDTOList = linkList.stream().map(PedestrianLinkProcessDTO::new).collect(Collectors.toList());
+        List<PedestrianLink> linkList = pedestrianLinkRepository.findPedestrianLinksInBbox(map.get("minLng"), map.get("minLat"), map.get("maxLng"), map.get("maxLat"));
+        List<PedestrianLinkProcessDTO> linkProcessDTOList = linkList.stream()
+                .peek(link-> Optional.of(link).orElseThrow(()-> new ResourceNotFoundException("해당 범위 내에 정의된 링크가 없습니다.")))
+                .map(PedestrianLinkProcessDTO::new).collect(Collectors.toList());
 
         // 시작점, 도착점에 가장 가까운 노드 산출
-        PedestrianNodeProcessDTO startNode = new PedestrianNodeProcessDTO();
-        PedestrianNodeProcessDTO endNode = new PedestrianNodeProcessDTO();
 
+
+        PedestrianNode startRawNode = pedestrianNodeRepository.findClosestNodeWithinDistance(startPoint, paddingMeter)
+                .orElseThrow(() -> new ResourceNotFoundException("poi에 인접 노드가 존재하지 않습니다. poiId : " + startPoi.getPoiId()));
+        PedestrianNode endRawNode = pedestrianNodeRepository.findClosestNodeWithinDistance(endPoint, paddingMeter)
+                .orElseThrow(() -> new ResourceNotFoundException("poi에 인접 노드가 존재하지 않습니다. poiId : " + endPoi.getPoiId()));
+
+        PedestrianNodeProcessDTO startNode = PedestrianNode.mapToDTO(startRawNode);
+        PedestrianNodeProcessDTO endNode = PedestrianNode.mapToDTO(endRawNode);
 
         // 두 POI 사이의 장애물 데이터를 가져오는 로직
-        Map<String, Double> map = makeBbox(startPoi, endPoi, 50);
-
         List<Poi> poiInBbox = poiRepository.findPoiInBbox(4L, map.get("minLat"), map.get("maxLat"), map.get("minLng"), map.get("maxLng"));
 
         // 그래프 선언
@@ -197,6 +223,7 @@ public class MapServiceImpl implements MapService{
         AStarAdmissibleHeuristic<PedestrianNodeProcessDTO> lowestSlopeHeuristic = (n1, n2)-> {
             PedestrianLinkProcessDTO link = graph.getEdge(n1, n2);
             if(link !=null){
+
                 // 경사도 기반 휴리스틱 함수
                 Integer slopeMax = link.getSlopeMax();
                 Integer slopeAvg = link.getSlopeAvg();
@@ -233,10 +260,12 @@ public class MapServiceImpl implements MapService{
     }
 
     private RouteDTO buildRouteDTO(GraphPath<PedestrianNodeProcessDTO, PedestrianLinkProcessDTO> shortestGraphPath, String type, Poi startPoi, Poi endPoi ) {
+
         RouteDTO build = RouteDTO.builder()
                 .distance(shortestGraphPath.getEdgeList().stream().mapToDouble(edge -> edge.getLinkLen()).sum())
                 .slope(shortestGraphPath.getEdgeList().stream().mapToDouble(edge -> Double.valueOf(edge.getSlopeMax())).max().getAsDouble())
                 .type(type)
+                .timeRequired(shortestGraphPath.getEdgeList().stream().mapToDouble(edge->edge.getLinkLen()/wheelChairSpeed).sum())
                 .list(shortestGraphPath.getVertexList()
                         .stream()
                         .map(vertex -> RouteNodeDTO.builder()
@@ -259,18 +288,17 @@ public class MapServiceImpl implements MapService{
         return build;
     }
 
-    private Map<String, Double> makeBbox(Poi startPoi, Poi endPoi, double bufferInMeters) {
-        final double EARTH_RADIUS = 6378137; // 지구의 반경 (미터)
+    public static Map<String, Double> makeBbox(Point startPoint, Point endPoint, double bufferInMeters) {
 
         // 위도와 경도의 거리 변환
         double latBuffer = bufferInMeters / EARTH_RADIUS * (180 / Math.PI);
-        double lonBuffer = bufferInMeters / (EARTH_RADIUS * Math.cos(Math.toRadians((startPoi.getPoiLatitude() + endPoi.getPoiLatitude()) / 2))) * (180 / Math.PI);
+        double lonBuffer = bufferInMeters / (EARTH_RADIUS * Math.cos(Math.toRadians((startPoint.getY() + endPoint.getY()) / 2))) * (180 / Math.PI);
 
         Map<String, Double> map = new HashMap<>();
-        map.put("minLat", Math.min(startPoi.getPoiLatitude(), endPoi.getPoiLatitude()) - latBuffer);
-        map.put("maxLat", Math.max(startPoi.getPoiLatitude(), endPoi.getPoiLatitude()) + latBuffer);
-        map.put("minLng", Math.min(startPoi.getPoiLongitude(), endPoi.getPoiLongitude()) - lonBuffer);
-        map.put("maxLng", Math.max(startPoi.getPoiLongitude(), endPoi.getPoiLongitude()) + lonBuffer);
+        map.put("minLat", Math.min(startPoint.getY(), endPoint.getY()) - latBuffer);
+        map.put("maxLat", Math.max(startPoint.getY(), endPoint.getY()) + latBuffer);
+        map.put("minLng", Math.min(startPoint.getX(), endPoint.getX()) - lonBuffer);
+        map.put("maxLng", Math.max(startPoint.getX(), endPoint.getX()) + lonBuffer);
 
         return map;
     }

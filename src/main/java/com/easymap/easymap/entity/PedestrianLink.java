@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 
 @Getter
@@ -18,19 +19,19 @@ public class PedestrianLink {
     private Long linkId;
 
     @Column(name = "geom")
-    private Point geom;
+    private Geometry geom;
 
     @Column(name = "link_len")
     private double length;
 
     @ManyToOne
-    @JoinColumn(name = "from_node_id")
+    @JoinColumn(name = "from_node_id", insertable = false, updatable = false)
     private PedestrianNode startNode;
 
     @ManyToOne
-    @JoinColumn(name = "to_node_id")
+    @JoinColumn(name = "to_node_id",insertable = false, updatable = false)
     private PedestrianNode endNode;
 
-    @OneToOne(mappedBy = "pedestrianLink", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "pedestrianLink", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private PedestrianLinkSlopeStat slopeStat;
 }

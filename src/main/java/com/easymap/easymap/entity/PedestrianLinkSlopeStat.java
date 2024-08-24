@@ -14,10 +14,26 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Table(name = "pedestrian_link_slope_stat")
 @Entity
+@NamedEntityGraph(
+        name = "PedestrianLinkSlopeStat.withLinkAndNodes",
+        attributeNodes = {
+                @NamedAttributeNode("pedestrianLink"),
+                @NamedAttributeNode(value = "pedestrianLink", subgraph = "pedestrianNodes")
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "pedestrianNodes",
+                        attributeNodes = {
+                                @NamedAttributeNode("startNode"),
+                                @NamedAttributeNode("endNode")
+                        }
+                )
+        }
+)
 public class PedestrianLinkSlopeStat {
 
     @Id
-    private Integer linkId;
+    private Long linkId;
 
     private Integer slopeMin;
 
