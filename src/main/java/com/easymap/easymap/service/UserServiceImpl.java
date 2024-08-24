@@ -182,7 +182,7 @@ public class UserServiceImpl implements UserService{
 
         review.getReviewImgList().stream().forEach(img-> s3Service.deleteImageFromS3(img.getS3Key()));
 
-        reviewRepository.delete(review);
+        reviewRepository.deleteReviewByReview(review);
     }
 
     /**
