@@ -98,6 +98,7 @@ public class UserServiceImpl implements UserService{
         return requireList;
     }
 
+    @Transactional
     @Override
     public boolean patchUserRequiredInfo(UserRequiredInfoRequestDto userInfo) {
 
@@ -138,6 +139,7 @@ public class UserServiceImpl implements UserService{
         return result;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ReviewResponseDTO> getMyReviews(String username) {
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no active user :" + username));
@@ -170,6 +172,7 @@ public class UserServiceImpl implements UserService{
 
     }
 
+    @Transactional
     @Override
     public void deleteMyReview(Long reviewId, String username) {
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no active user :" + username));
