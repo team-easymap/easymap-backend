@@ -1,4 +1,4 @@
-name: Build and Deploy Java Application
+name: Build and Deploy Spring Application
 
 on:
   push:
