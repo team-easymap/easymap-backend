@@ -12,11 +12,11 @@ import com.easymap.easymap.entity.*;
 import com.easymap.easymap.entity.category.Category;
 import com.easymap.easymap.entity.category.DetailedCategory;
 import com.easymap.easymap.entity.category.Tag;
+import com.easymap.easymap.entity.pedestrian.PedestrianNode;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.*;
 import com.easymap.easymap.service.s3.S3Service;
 import com.easymap.easymap.util.PoiUtil;
-import com.easymap.easymap.util.search.SearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
@@ -162,7 +162,7 @@ public class PoiServiceImpl implements PoiService{
     @Override
     public List<ReviewResponseDTO> getReviews(Long poiId) {
 
-        List<Review> reviews = reviewRepository.findReviewsByPoi_PoiId(poiId);
+        List<Review> reviews = reviewRepository.findReviewsByPoi_PoiIdAndDeleteAtIsNull(poiId);
 
         List<ReviewResponseDTO> collect = reviews.stream().map(Review::mapToDTO).collect(Collectors.toList());
 

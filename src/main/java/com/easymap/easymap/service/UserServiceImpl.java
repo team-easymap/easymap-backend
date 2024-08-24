@@ -144,7 +144,7 @@ public class UserServiceImpl implements UserService{
     public List<ReviewResponseDTO> getMyReviews(String username) {
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no active user :" + username));
 
-        List<Review> reviewsByUserUserId = reviewRepository.findReviewsByUser_UserId(user.getUserId());
+        List<Review> reviewsByUserUserId = reviewRepository.findReviewsByUser_UserIdAndDeleteAtIsNull(user.getUserId());
 
         return reviewsByUserUserId.stream().map(Review::mapToDTO).collect(Collectors.toList());
     }
@@ -154,7 +154,7 @@ public class UserServiceImpl implements UserService{
     public void updateMyReview(Long reviewId, ReviewUpdateRequestDTO reviewUpdateRequestDTO, String username) {
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no active user :" + username));
 
-        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new ResourceNotFoundException("no review :" + reviewId));
+        Review review = reviewRepository.findByIdAndDeleteAtIsNull(reviewId).orElseThrow(() -> new ResourceNotFoundException("no review :" + reviewId));
 
         if(review.getUser().getUserId()!=user.getUserId()){
             throw new AccessDeniedException("you do not have permission to modify this review");
@@ -177,7 +177,7 @@ public class UserServiceImpl implements UserService{
     public void deleteMyReview(Long reviewId, String username) {
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no active user :" + username));
 
-        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new ResourceNotFoundException("no review :" + reviewId));
+        Review review = reviewRepository.findByIdAndDeleteAtIsNull(reviewId).orElseThrow(() -> new ResourceNotFoundException("no review :" + reviewId));
 
         if(review.getUser().getUserId()!=user.getUserId()){
             throw new AccessDeniedException("you do not have permission to delete this review");
