@@ -147,8 +147,17 @@ public class MapServiceImpl implements MapService{
         List<PedestrianLinkProcessDTO> linkProcessDTOList = linkList.stream().map(PedestrianLinkProcessDTO::new).collect(Collectors.toList());
 
         // 시작점, 도착점에 가장 가까운 노드 산출
-        PedestrianNodeProcessDTO startNode = new PedestrianNodeProcessDTO();
-        PedestrianNodeProcessDTO endNode = new PedestrianNodeProcessDTO();
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Point startPoint = geometryFactory.createPoint(new Coordinate(startPoi.getPoiLongitude(), startPoi.getPoiLatitude()));
+        Point endPoint = geometryFactory.createPoint(new Coordinate(endPoi.getPoiLongitude(), endPoi.getPoiLatitude()));
+
+        PedestrianNode startRawNode = pedestrianNodeRepository.findClosestNodeWithinDistance(startPoint, 50)
+                .orElseThrow(() -> new ResourceNotFoundException("poi에 인접 노드가 존재하지 않습니다. poiId : " + startPoi.getPoiId()));
+        PedestrianNode endRawNode = pedestrianNodeRepository.findClosestNodeWithinDistance(endPoint, 50)
+                .orElseThrow(() -> new ResourceNotFoundException("poi에 인접 노드가 존재하지 않습니다. poiId : " + endPoi.getPoiId()));
+
+        PedestrianNodeProcessDTO startNode = PedestrianNode.mapToDTO(startRawNode);
+        PedestrianNodeProcessDTO endNode = PedestrianNode.mapToDTO(endRawNode);
 
 
         // 두 POI 사이의 장애물 데이터를 가져오는 로직
