@@ -32,13 +32,16 @@ public class PedestrianNode {
     @Column(name = "emd_nm")
     private String subDistrictName; // 읍 면 동
 
-    @OneToMany(mappedBy = "startNode")
-    private List<PedestrianLink> outgoingLinks;
-
-    @OneToMany(mappedBy = "endNode")
-    private List<PedestrianLink> incomingLinks;
+//    @OneToMany(mappedBy = "startNode")
+//    private List<PedestrianLink> outgoingLinks;
+//
+//    @OneToMany(mappedBy = "endNode")
+//    private List<PedestrianLink> incomingLinks;
 
     public static PedestrianNodeProcessDTO mapToDTO(PedestrianNode pedestrianNode) {
+        if(pedestrianNode == null) {
+            return null;
+        }
         return PedestrianNodeProcessDTO.builder()
                 .nodeId(pedestrianNode.getNodeId())
                 .geom(pedestrianNode.getGeom())

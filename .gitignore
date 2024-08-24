@@ -39,3 +39,6 @@ out/
 # Exclude application.yml and application.properties
 
 /src/main/resources/application-dev.yml
+
+# Exclude test
+/src/test/java/com/easymap/easymap/repository/PedestrianLinkRepositoryTest.java

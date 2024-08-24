@@ -1,15 +1,26 @@
 package com.easymap.easymap.dto.request.map;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
-@Getter
+@ToString
 @Builder
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class RouteGetRequestDTO {
 
-    private Long startPoiId;
+    @NotNull
+    private Long start_poi_id;
 
-    private Long endPoiId;
+    @NotNull
+    private Long end_poi_id;
+
+    public Long getStartPoiId() {
+        return start_poi_id;
+    }
+
+    public Long getEndPoiId() {
+        return end_poi_id;
+    }
 }

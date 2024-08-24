@@ -18,7 +18,7 @@ public class RouteDTO {
 
     private Double slope;
 
-    private LocalDateTime timeRequired;
+    private Double timeRequired;
 
     private List<RouteNodeDTO> list;
 }
