@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  Yujuhun:
+    Type: AWS::IAM::User
+    Properties:
+      Path: "/"
+      UserName: "Yu.juhun"
+      Groups:
+        - "MgmtAdminGroup"
+
+  test:
+    Type: AWS::IAM::User
+    Properties:
+      Path: "/"
+      UserName: "test"
+      Groups:
+        - "MgmtDeveloperGroup"
+        
+  Anpaul:
+    Type: AWS::IAM::User
+    Properties:
+      Path: "/"
+      UserName: "An.paul"
+      Groups:
+        - "MgmtDeveloperGroup"
+        
+  Kimminseok:
+    Type: AWS::IAM::User
+    Properties:
+      Path: "/"
+      UserName: "Kim.minseok"
+      Groups:
+        - "MgmtDeveloperGroup"
+        
+  Gongseungbae:
+    Type: AWS::IAM::User
+    Properties:
+      Path: "/"
+      UserName: "Gong.seungbae"
+      Groups:
+        - "MgmtDeveloperGroup"
