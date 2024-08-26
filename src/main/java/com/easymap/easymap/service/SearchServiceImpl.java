@@ -13,6 +13,7 @@ import com.easymap.easymap.util.search.SearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ public class SearchServiceImpl implements SearchService{
     private final PoiRepository poiRepository;
 
 
+    @Transactional(readOnly = true)
     @Override
     public SearchResultResponseDTO searchKeyword(String keyword) {
         // 향후 비동기로 수정
@@ -57,15 +59,11 @@ public class SearchServiceImpl implements SearchService{
                 .poiData(poiResponseDTOList)
                 .build();
 
-
     }
 
     @Override
     public CoordinatesAndAddress postCoordinateToAddress(SearchAddressPostRequestDTO addressPostRequestDTO) {
-
-        // 일단 vworld로 구현
         CoordinatesAndAddress coordinates = coordinateConverterUtil.convertByAddressFromVworld(addressPostRequestDTO);
-
 
         return coordinates;
     }

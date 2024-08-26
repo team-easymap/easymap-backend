@@ -67,6 +67,7 @@ public class UserServiceImpl implements UserService{
         return user;
     }
 
+    @Transactional
     @Override
     public void userWithdraw(UserDetails userDetails) throws ResourceNotFoundException {
         Optional<User> foundUser = userRepository.findUserByEmailAndDeactivationDateIsNull(userDetails.getUsername());
