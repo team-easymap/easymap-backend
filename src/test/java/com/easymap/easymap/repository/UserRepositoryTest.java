@@ -1,6 +1,6 @@
 package com.easymap.easymap.repository;
 
-//import com.easymap.easymap.entity.User;
+//import com.easymap.easymap.entity.user.User;
 //import org.junit.jupiter.api.AfterEach;
 //import org.junit.jupiter.api.Assertions;
 //import org.junit.jupiter.api.BeforeEach;

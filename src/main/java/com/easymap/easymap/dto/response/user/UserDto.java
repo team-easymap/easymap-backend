@@ -1,6 +1,5 @@
 package com.easymap.easymap.dto.response.user;
 
-import com.easymap.easymap.entity.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;

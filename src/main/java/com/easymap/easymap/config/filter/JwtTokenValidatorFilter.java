@@ -1,7 +1,7 @@
 package com.easymap.easymap.config.filter;
 
 import com.easymap.easymap.config.CustomUserDetails;
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.entity.user.User;
 import com.easymap.easymap.handler.exception.AuthenticationException;
 import com.easymap.easymap.provider.JwtProvider;
 import com.easymap.easymap.repository.UserRepository;

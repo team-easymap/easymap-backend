@@ -4,9 +4,9 @@ import com.easymap.easymap.dto.request.review.ReviewUpdateRequestDTO;
 import com.easymap.easymap.dto.request.user.UserNicknameDuplicateRequestDTO;
 import com.easymap.easymap.dto.request.user.UserRequiredInfoRequestDto;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
-import com.easymap.easymap.entity.Review;
-import com.easymap.easymap.entity.ReviewImg;
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.entity.review.Review;
+import com.easymap.easymap.entity.review.ReviewImg;
+import com.easymap.easymap.entity.user.User;
 import com.easymap.easymap.handler.exception.NickNameDuplicatedException;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.ReviewRepository;
@@ -67,6 +67,7 @@ public class UserServiceImpl implements UserService{
         return user;
     }
 
+    @Transactional
     @Override
     public void userWithdraw(UserDetails userDetails) throws ResourceNotFoundException {
         Optional<User> foundUser = userRepository.findUserByEmailAndDeactivationDateIsNull(userDetails.getUsername());

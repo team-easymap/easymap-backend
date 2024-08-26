@@ -1,6 +1,6 @@
 package com.easymap.easymap.repository;
 
-import com.easymap.easymap.entity.Poi;
+import com.easymap.easymap.entity.poi.Poi;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

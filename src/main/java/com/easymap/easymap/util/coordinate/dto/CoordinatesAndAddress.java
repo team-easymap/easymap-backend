@@ -1,6 +1,5 @@
 package com.easymap.easymap.util.coordinate.dto;
 
-import com.easymap.easymap.util.coordinate.dto.juso.CoordinateData;
 import com.easymap.easymap.util.coordinate.dto.vworld.VworldCoordinateResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Coordinates {
+public class CoordinatesAndAddress {
 
     private String status;
 
@@ -23,14 +22,14 @@ public class Coordinates {
 
     //private String code; // 법정동 코드
 
-    public static Coordinates mapFromVworldRst(VworldCoordinateResponseDTO vworldCoordinateResponseDTO){
+    public static CoordinatesAndAddress mapFromVworldRst(VworldCoordinateResponseDTO vworldCoordinateResponseDTO){
         if(vworldCoordinateResponseDTO.getStatus().equals("NOT_FOUND")){
-            return Coordinates.builder()
+            return CoordinatesAndAddress.builder()
                     .status("NOT_FOUND")
                     .build();
         }
 
-        return Coordinates.builder()
+        return CoordinatesAndAddress.builder()
                 .status("FOUND")
                 .address(vworldCoordinateResponseDTO.getRefined().getAddressFullText())
                 //.code(vworldCoordinateResponseDTO.getRefined().getCode())

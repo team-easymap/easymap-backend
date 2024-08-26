@@ -38,7 +38,7 @@ public class PoiController {
     private final PoiService poiService;
 
     @GetMapping("/{poiId}")
-    public ResponseEntity<?> getPoi(@PathVariable("poiId") Long poiId){
+    public ResponseEntity<? super PoiGetResponseDTO> getPoi(@PathVariable("poiId") Long poiId){
         log.info("get Access for " + poiId);
 
         PoiResponseDTO poi = poiService.findPoiById(poiId);
@@ -46,7 +46,7 @@ public class PoiController {
     }
 
     @GetMapping("/categorys")
-    public ResponseEntity<?> getCategory(){
+    public ResponseEntity<? super CategoryGetResponseDTO> getCategory(){
         log.info("get Category");
         List<CategoryResponseDTO> categoryResponseDTOList= poiService.getCategory();
 
@@ -55,7 +55,7 @@ public class PoiController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value="/add")
-    public ResponseEntity<?> addPoi(@RequestBody @Valid PoiAddRequestDTO poiAddRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<? super ResponseDto > addPoi(@RequestBody @Valid PoiAddRequestDTO poiAddRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
         if(userDetails == null){
             throw new AuthenticationException("not authenticated");
         }
@@ -68,7 +68,7 @@ public class PoiController {
 
     @PreAuthorize("isAuthenticated()")
     @PatchMapping(value="/{poiId}/update")
-    public ResponseEntity<?> updatePoi(@PathVariable(value = "poiId") Long poiId, @RequestBody @Valid PoiUpdateRequestDTO poiUpdateRequestDTO){
+    public ResponseEntity<? super ResponseDto> updatePoi(@PathVariable(value = "poiId") Long poiId, @RequestBody @Valid PoiUpdateRequestDTO poiUpdateRequestDTO){
 
         log.info(poiUpdateRequestDTO.toString());
 
@@ -81,7 +81,7 @@ public class PoiController {
     // 일단 Review 관련 로직도 여기 구현
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/{poiId}/review")
-    public ResponseEntity<?> postReview(@PathVariable(value = "poiId") Long poiId, @Valid @RequestBody ReviewPostRequestDTO reviewPostRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<? super ResponseDto> postReview(@PathVariable(value = "poiId") Long poiId, @Valid @RequestBody ReviewPostRequestDTO reviewPostRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
 
         Long reviewId = poiService.addReview(poiId, reviewPostRequestDTO, userDetails.getUsername());
 
@@ -89,7 +89,7 @@ public class PoiController {
     }
 
     @GetMapping(value = "/{poiId}/review")
-    public ResponseEntity<?> getReviews(@PathVariable(value = "poiId")Long poiId){
+    public ResponseEntity<? super ReviewGetResponseDTO> getReviews(@PathVariable(value = "poiId")Long poiId){
 
         List<ReviewResponseDTO> reviewList = poiService.getReviews(poiId);
 
@@ -99,7 +99,7 @@ public class PoiController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/instantpoi")
-    public ResponseEntity<?> postInstantPoi(@RequestBody InstantPoiPostRequestDTO instantPoiPostRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<? super InstantPoiResponseDTO> postInstantPoi(@RequestBody InstantPoiPostRequestDTO instantPoiPostRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
 
         Long poiId = poiService.addInstantPoi(instantPoiPostRequestDTO, userDetails.getUsername());
 
@@ -107,7 +107,7 @@ public class PoiController {
     }
 
     @PostMapping("/list")
-    public ResponseEntity<?> postBboxPoiList(@RequestBody @Valid BboxPoiRequestDTO bboxPoiRequestDTO){
+    public ResponseEntity<? super BboxPoiListResponseDTO> postBboxPoiList(@RequestBody @Valid BboxPoiRequestDTO bboxPoiRequestDTO){
 
         List<PoiResponseDTO> poiResponseDTOList = poiService.findBboxPoiList(bboxPoiRequestDTO);
         return BboxPoiListResponseDTO.success(poiResponseDTOList);

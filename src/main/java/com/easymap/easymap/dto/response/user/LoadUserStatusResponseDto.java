@@ -3,7 +3,7 @@ package com.easymap.easymap.dto.response.user;
 import com.easymap.easymap.common.ResponseCode;
 import com.easymap.easymap.common.ResponseMessage;
 import com.easymap.easymap.dto.response.ResponseDto;
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
