@@ -37,7 +37,7 @@ public class Category {
         return CategoryResponseDTO.builder()
                 .categoryId(category.getCategoryId())
                 .categoryName(category.categoryName)
-                .detailedCatgoryList(
+                .detailedCategoryList(
                         category.getDetailedCategoryList().stream()
                                 .map(DetailedCategory::mapToDTO)
                                 .collect(Collectors.toList()))
