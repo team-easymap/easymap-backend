@@ -1,7 +1,9 @@
-package com.easymap.easymap.entity;
+package com.easymap.easymap.entity.poi;
 
 import com.easymap.easymap.dto.request.poi.PoiUpdateRequestDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
+import com.easymap.easymap.entity.review.Review;
+import com.easymap.easymap.entity.user.User;
 import com.easymap.easymap.entity.category.DetailedCategory;
 import com.easymap.easymap.entity.category.Tag;
 import jakarta.persistence.*;

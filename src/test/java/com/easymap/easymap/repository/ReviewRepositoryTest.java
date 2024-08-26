@@ -1,8 +1,8 @@
 package com.easymap.easymap.repository;
 //
-//import com.easymap.easymap.entity.Poi;
-//import com.easymap.easymap.entity.Review;
-//import com.easymap.easymap.entity.User;
+//import com.easymap.easymap.entity.poi.Poi;
+//import com.easymap.easymap.entity.review.Review;
+//import com.easymap.easymap.entity.user.User;
 //import lombok.extern.slf4j.Slf4j;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;

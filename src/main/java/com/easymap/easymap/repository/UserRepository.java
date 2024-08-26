@@ -1,6 +1,6 @@
 package com.easymap.easymap.repository;
 
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

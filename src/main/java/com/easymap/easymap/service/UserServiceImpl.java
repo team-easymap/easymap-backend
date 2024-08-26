@@ -1,13 +1,12 @@
 package com.easymap.easymap.service;
 
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.easymap.easymap.dto.request.review.ReviewUpdateRequestDTO;
 import com.easymap.easymap.dto.request.user.UserNicknameDuplicateRequestDTO;
 import com.easymap.easymap.dto.request.user.UserRequiredInfoRequestDto;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
-import com.easymap.easymap.entity.Review;
-import com.easymap.easymap.entity.ReviewImg;
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.entity.review.Review;
+import com.easymap.easymap.entity.review.ReviewImg;
+import com.easymap.easymap.entity.user.User;
 import com.easymap.easymap.handler.exception.NickNameDuplicatedException;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.ReviewRepository;
@@ -16,17 +15,16 @@ import com.easymap.easymap.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -69,6 +67,7 @@ public class UserServiceImpl implements UserService{
         return user;
     }
 
+    @Transactional
     @Override
     public void userWithdraw(UserDetails userDetails) throws ResourceNotFoundException {
         Optional<User> foundUser = userRepository.findUserByEmailAndDeactivationDateIsNull(userDetails.getUsername());
@@ -98,6 +97,7 @@ public class UserServiceImpl implements UserService{
         return requireList;
     }
 
+    @Transactional
     @Override
     public boolean patchUserRequiredInfo(UserRequiredInfoRequestDto userInfo) {
 
@@ -138,11 +138,12 @@ public class UserServiceImpl implements UserService{
         return result;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ReviewResponseDTO> getMyReviews(String username) {
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no active user :" + username));
 
-        List<Review> reviewsByUserUserId = reviewRepository.findReviewsByUser_UserId(user.getUserId());
+        List<Review> reviewsByUserUserId = reviewRepository.findReviewsByUser_UserIdAndDeleteAtIsNull(user.getUserId());
 
         return reviewsByUserUserId.stream().map(Review::mapToDTO).collect(Collectors.toList());
     }
@@ -152,7 +153,7 @@ public class UserServiceImpl implements UserService{
     public void updateMyReview(Long reviewId, ReviewUpdateRequestDTO reviewUpdateRequestDTO, String username) {
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no active user :" + username));
 
-        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new ResourceNotFoundException("no review :" + reviewId));
+        Review review = reviewRepository.findByReviewIdAndDeleteAtIsNull(reviewId).orElseThrow(() -> new ResourceNotFoundException("no review :" + reviewId));
 
         if(review.getUser().getUserId()!=user.getUserId()){
             throw new AccessDeniedException("you do not have permission to modify this review");
@@ -170,11 +171,12 @@ public class UserServiceImpl implements UserService{
 
     }
 
+    @Transactional
     @Override
     public void deleteMyReview(Long reviewId, String username) {
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no active user :" + username));
 
-        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new ResourceNotFoundException("no review :" + reviewId));
+        Review review = reviewRepository.findByReviewIdAndDeleteAtIsNull(reviewId).orElseThrow(() -> new ResourceNotFoundException("no review :" + reviewId));
 
         if(review.getUser().getUserId()!=user.getUserId()){
             throw new AccessDeniedException("you do not have permission to delete this review");
@@ -182,7 +184,7 @@ public class UserServiceImpl implements UserService{
 
         review.getReviewImgList().stream().forEach(img-> s3Service.deleteImageFromS3(img.getS3Key()));
 
-        reviewRepository.delete(review);
+        reviewRepository.deleteReviewByReviewId(review.getReviewId());
     }
 
     /**

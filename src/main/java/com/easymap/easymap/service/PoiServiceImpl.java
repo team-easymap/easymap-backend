@@ -8,15 +8,19 @@ import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
 import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
-import com.easymap.easymap.entity.*;
 import com.easymap.easymap.entity.category.Category;
 import com.easymap.easymap.entity.category.DetailedCategory;
 import com.easymap.easymap.entity.category.Tag;
+import com.easymap.easymap.entity.pedestrian.PedestrianNode;
+import com.easymap.easymap.entity.poi.Poi;
+import com.easymap.easymap.entity.poi.PoiImg;
+import com.easymap.easymap.entity.review.Review;
+import com.easymap.easymap.entity.review.ReviewImg;
+import com.easymap.easymap.entity.user.User;
 import com.easymap.easymap.handler.exception.ResourceNotFoundException;
 import com.easymap.easymap.repository.*;
 import com.easymap.easymap.service.s3.S3Service;
 import com.easymap.easymap.util.PoiUtil;
-import com.easymap.easymap.util.search.SearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
@@ -58,9 +62,11 @@ public class PoiServiceImpl implements PoiService{
         Optional<User> userByEmailAndDeactivationDateIsNull = userRepository.findUserByEmailAndDeactivationDateIsNull(username);
         User user = userByEmailAndDeactivationDateIsNull.orElseThrow(() -> new ResourceNotFoundException("no such user : " + username));
 
-        DetailedCategory detailedCategory = detailedCategoryRepository.findById(poiAddRequestDTO.getDetailedCategoryId()).orElseThrow(() -> new ResourceNotFoundException("no such detailed category"));
+        DetailedCategory detailedCategory = detailedCategoryRepository.findById(poiAddRequestDTO.getDetailedCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("no such detailed category"));
 
-        List<Tag> tagList = poiAddRequestDTO.getTagList().stream().map(tag -> tagRepository.findById(tag.getTagId()).orElseThrow(() -> new ResourceNotFoundException("no such tag")))
+        List<Tag> tagList = poiAddRequestDTO.getTagList().stream()
+                .map(tag -> tagRepository.findById(tag.getTagId()).orElseThrow(() -> new ResourceNotFoundException("no such tag")))
                 .collect(Collectors.toList());
 
 
@@ -79,9 +85,11 @@ public class PoiServiceImpl implements PoiService{
                 .build();
 
         // 빌더에서 참조관계 설정 안되어서 poi 생성 후 세터 주입
-        List<PoiImg> poiImgs = poiAddRequestDTO.getImages().stream().map(s3key -> PoiImg.builder().poi(poi).s3Key(s3key.getS3Key()).build()).collect(Collectors.toList());
-        poi.setPoiImgList(poiImgs);
+        List<PoiImg> poiImgs = poiAddRequestDTO.getImages().stream()
+                .map(s3key -> PoiImg.builder().poi(poi).s3Key(s3key.getS3Key()).build())
+                .collect(Collectors.toList());
 
+        poi.setPoiImgList(poiImgs);
 
         Poi save = poiRepository.save(poi);
 
@@ -110,7 +118,7 @@ public class PoiServiceImpl implements PoiService{
 
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryResponseDTO> getCategory() {
 
@@ -119,29 +127,23 @@ public class PoiServiceImpl implements PoiService{
         return all.stream().map(Category::mapToDTO).collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public PoiResponseDTO findPoiById(Long poiId) {
-        Poi poi = poiRepository.findById(poiId).orElseThrow(() -> new ResourceNotFoundException("no poi : " + poiId));
-
-//        if(!poi.isSharable()){
-//            throw new
-//        }
-        // TODO 삭제된 Poi 처리
-//        if (poi.getDeletedAt()!=null){
-//            throw new
-//        }
-
+        Poi poi = poiRepository.findById(poiId)
+                .orElseThrow(() -> new ResourceNotFoundException("no poi : " + poiId));
 
         return Poi.mapToDTO(poi);
     }
 
 
+    @Transactional
     @Override
     public Long addReview(Long poiId, ReviewPostRequestDTO reviewPostRequestDTO, String username) {
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(username).orElseThrow(() -> new ResourceNotFoundException("no user such as :" + username));
 
-        Poi poi = poiRepository.findPoiByPoiIdAndDeletedAtIsNullAndSharableIsTrue(poiId).orElseThrow(() -> new ResourceNotFoundException("no public poi such as : " + poiId));
+        Poi poi = poiRepository.findPoiByPoiIdAndDeletedAtIsNullAndSharableIsTrue(poiId)
+                .orElseThrow(() -> new ResourceNotFoundException("no public poi such as : " + poiId));
 
         Review review = Review.builder()
                 .user(user)
@@ -151,7 +153,9 @@ public class PoiServiceImpl implements PoiService{
                 .createAt(LocalDateTime.now())
                 .build();
 
-        List<ReviewImg> reviewImgs = reviewPostRequestDTO.getImages().stream().map(dto -> ReviewImg.builder().review(review).s3Key(dto.getS3Key()).build()).collect(Collectors.toList());
+        List<ReviewImg> reviewImgs = reviewPostRequestDTO.getImages().stream()
+                .map(dto -> ReviewImg.builder().review(review).s3Key(dto.getS3Key()).build())
+                .collect(Collectors.toList());
         review.setReviewImgList(reviewImgs);
 
         Review save = reviewRepository.save(review);
@@ -159,16 +163,18 @@ public class PoiServiceImpl implements PoiService{
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ReviewResponseDTO> getReviews(Long poiId) {
 
-        List<Review> reviews = reviewRepository.findReviewsByPoi_PoiId(poiId);
+        List<Review> reviews = reviewRepository.findReviewsByPoi_PoiIdAndDeleteAtIsNull(poiId);
 
         List<ReviewResponseDTO> collect = reviews.stream().map(Review::mapToDTO).collect(Collectors.toList());
 
         return collect;
     }
 
+    @Transactional
     @Override
     public Long addInstantPoi(InstantPoiPostRequestDTO instantPoiPostRequestDTO, String username) {
 
@@ -194,7 +200,7 @@ public class PoiServiceImpl implements PoiService{
         return save.getPoiId();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<PoiResponseDTO> findBboxPoiList(BboxPoiRequestDTO bboxPoiRequestDTO) {
         // lt_lat, lt_lng, rb_lat, rb_lng
@@ -205,11 +211,10 @@ public class PoiServiceImpl implements PoiService{
         Double smLng = Math.min(bbox.get(1), bbox.get(3));
         Double bLng = Math.max(bbox.get(1), bbox.get(3));
 
-
-
         List<Poi> poisInBbox = poiRepository.findPoiInBbox(bboxPoiRequestDTO.getCategoryId(), smLat, bLat, smLng, bLng);
 
-        List<PoiResponseDTO> collect = poisInBbox.stream().map(poi -> Poi.mapToDTO(poi)).collect(Collectors.toList());
+        List<PoiResponseDTO> collect = poisInBbox.stream()
+                .map(poi -> Poi.mapToDTO(poi)).collect(Collectors.toList());
 
         return collect;
     }

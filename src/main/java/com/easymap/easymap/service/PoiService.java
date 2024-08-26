@@ -8,8 +8,7 @@ import com.easymap.easymap.dto.request.review.ReviewPostRequestDTO;
 import com.easymap.easymap.dto.response.category.CategoryResponseDTO;
 import com.easymap.easymap.dto.response.poi.PoiResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
-import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
-import com.easymap.easymap.entity.PedestrianNode;
+import com.easymap.easymap.entity.pedestrian.PedestrianNode;
 
 import java.util.List;
 

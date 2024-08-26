@@ -1,4 +1,4 @@
-package com.easymap.easymap.entity;
+package com.easymap.easymap.entity.review;
 
 import com.easymap.easymap.dto.response.review.ReviewImgResponseDTO;
 import jakarta.persistence.*;
