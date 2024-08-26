@@ -41,7 +41,6 @@ public class MapController {
 
         Long userRouteId = mapService.postUserRoute(userRoutePostRequestDTO, userDetails);
 
-        log.info("userRouteId : "+userRouteId);
         return ResponseDto.success();
     }
 

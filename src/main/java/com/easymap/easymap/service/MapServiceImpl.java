@@ -63,7 +63,7 @@ public class MapServiceImpl implements MapService{
 
     private static final double maxPossibleAngle = 5.5;
 
-    final static Double wheelChairSpeed = 1.5;
+    private final static Double wheelChairSpeed = 1.5;
 
 
 
@@ -77,9 +77,9 @@ public class MapServiceImpl implements MapService{
 
         List<Poi> poisInBbox = poiRepository.findPoiInBbox(null, smLat, bLat, smLng, bLng);
 
-        Category build = Category.builder().categoryId(4L).build();
-
-        List<Long> obstacleDcIdList = detailedCategoryRepository.findDetailedCategoryByCategory(build).stream().map(dc -> dc.getDetailedCategoryId()).collect(Collectors.toList());
+        List<Long> obstacleDcIdList = detailedCategoryRepository.findDetailedCategoryByCategory_CategoryId(4L).stream()
+                .map(dc -> dc.getDetailedCategoryId())
+                .collect(Collectors.toList());
 
         List<MapPoisDTO> collect = poisInBbox.stream().map(poi -> MapPoisDTO.builder()
                         .poiId(poi.getPoiId())
@@ -94,18 +94,22 @@ public class MapServiceImpl implements MapService{
         return collect;
     }
 
+    @Transactional
     @Override
     public Long postUserRoute(UserRoutePostRequestDTO userRoutePostRequestDTO, UserDetails userDetails) {
 
-        User user = userRepository.findUserByEmailAndDeactivationDateIsNull(userDetails.getUsername()).orElseThrow(() -> new ResourceNotFoundException("no user such as : " + userDetails.getUsername()));
+        User user = userRepository.findUserByEmailAndDeactivationDateIsNull(userDetails.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("no user such as : " + userDetails.getUsername()));
 
         StringBuilder sb = new StringBuilder();
         sb.append(user.getUserId()).append(",");
         sb.append(userRoutePostRequestDTO.getStartTime().toString()).append(",");
         sb.append(userRoutePostRequestDTO.getHop()).append(",");
 
-        String collect = userRoutePostRequestDTO.getData().stream().map(userRouteCoordiDTO -> "(" + userRouteCoordiDTO.getLat() + "," + userRouteCoordiDTO.getLng() + ")")
+        String collect = userRoutePostRequestDTO.getData().stream()
+                .map(userRouteCoordiDTO -> "(" + userRouteCoordiDTO.getLat() + "," + userRouteCoordiDTO.getLng() + ")")
                 .collect(Collectors.joining(","));
+
         sb.append(collect);
 
         String csvData = sb.toString();
