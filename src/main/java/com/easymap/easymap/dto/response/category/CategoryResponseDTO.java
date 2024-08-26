@@ -23,7 +23,7 @@ public class CategoryResponseDTO {
 
     private String categoryName;
 
-    private List<DetailedCategoryResponseDTO> detailedCatgoryList;
+    private List<DetailedCategoryResponseDTO> detailedCategoryList;
 
     private List<TagResponseDTO> tagResponseDTOList;
 
