@@ -1,7 +1,7 @@
 package com.easymap.easymap.config;
 
 
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.entity.user.User;
 import com.easymap.easymap.config.filter.JwtTokenValidatorFilter;
 import com.easymap.easymap.provider.JwtProvider;
 import com.easymap.easymap.repository.UserRepository;
@@ -37,7 +37,6 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 
 @Configuration
 @Slf4j

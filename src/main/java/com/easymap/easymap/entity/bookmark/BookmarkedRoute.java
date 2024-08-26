@@ -1,7 +1,7 @@
 package com.easymap.easymap.entity.bookmark;
 
-import com.easymap.easymap.entity.Poi;
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.entity.poi.Poi;
+import com.easymap.easymap.entity.user.User;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 

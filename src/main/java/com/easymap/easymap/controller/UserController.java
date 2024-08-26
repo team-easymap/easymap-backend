@@ -6,17 +6,14 @@ import com.easymap.easymap.dto.request.user.UserNicknameDuplicateRequestDTO;
 
 import com.easymap.easymap.dto.request.user.UserRequiredInfoRequestDto;
 import com.easymap.easymap.dto.response.ResponseDto;
-import com.easymap.easymap.dto.response.s3.S3PresignedUrlResponseDto;
-import com.easymap.easymap.dto.response.review.ReviewGetResponseDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
 import com.easymap.easymap.dto.response.user.LoadUserStatusResponseDto;
 import com.easymap.easymap.dto.response.user.MyReviewGetResponseDTO;
 import com.easymap.easymap.dto.response.user.UserAdditionalInfoResponseDto;
 import com.easymap.easymap.dto.response.user.UserNicknameDuplicateResponseDTO;
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.entity.user.User;
 import com.easymap.easymap.handler.exception.AuthenticationException;
 import com.easymap.easymap.service.UserService;
-import com.easymap.easymap.service.s3.S3Service;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +22,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 

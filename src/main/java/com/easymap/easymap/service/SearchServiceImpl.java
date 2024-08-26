@@ -8,7 +8,7 @@ import com.easymap.easymap.dto.response.search.SearchResultPoiResponseDTO;
 import com.easymap.easymap.dto.response.search.SearchResultResponseDTO;
 import com.easymap.easymap.repository.PoiRepository;
 import com.easymap.easymap.util.coordinate.CoordinateConverterUtil;
-import com.easymap.easymap.util.coordinate.dto.Coordinates;
+import com.easymap.easymap.util.coordinate.dto.CoordinatesAndAddress;
 import com.easymap.easymap.util.search.SearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,10 +61,10 @@ public class SearchServiceImpl implements SearchService{
     }
 
     @Override
-    public Coordinates postCoordinateToAddress(SearchAddressPostRequestDTO addressPostRequestDTO) {
+    public CoordinatesAndAddress postCoordinateToAddress(SearchAddressPostRequestDTO addressPostRequestDTO) {
 
         // 일단 vworld로 구현
-        Coordinates coordinates = coordinateConverterUtil.convertByAddressFromVworld(addressPostRequestDTO);
+        CoordinatesAndAddress coordinates = coordinateConverterUtil.convertByAddressFromVworld(addressPostRequestDTO);
 
 
         return coordinates;

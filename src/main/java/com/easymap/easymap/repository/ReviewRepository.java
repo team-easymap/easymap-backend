@@ -1,6 +1,6 @@
 package com.easymap.easymap.repository;
 
-import com.easymap.easymap.entity.Review;
+import com.easymap.easymap.entity.review.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

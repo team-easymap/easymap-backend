@@ -2,7 +2,7 @@ package com.easymap.easymap.util.coordinate;
 
 import com.easymap.easymap.dto.request.search.SearchAddressPostRequestDTO;
 import com.easymap.easymap.dto.response.search.AddressResultDTO;
-import com.easymap.easymap.util.coordinate.dto.Coordinates;
+import com.easymap.easymap.util.coordinate.dto.CoordinatesAndAddress;
 import com.easymap.easymap.util.coordinate.dto.juso.CoordinateData;
 import com.easymap.easymap.util.coordinate.dto.vworld.VworldAddressDTO;
 import com.easymap.easymap.util.coordinate.dto.vworld.VworldCoordinateResponseDTO;
@@ -65,7 +65,7 @@ public class CoordinateConverterUtil {
         return coordinateData;
     }
 
-    public Coordinates convertByAddressFromVworld(SearchAddressPostRequestDTO requestDTO) {
+    public CoordinatesAndAddress convertByAddressFromVworld(SearchAddressPostRequestDTO requestDTO) {
         RestTemplate restTemplate = new RestTemplate();
 
 
@@ -93,7 +93,7 @@ public class CoordinateConverterUtil {
             });
         }
 
-        return Coordinates.mapFromVworldRst(forObject);
+        return CoordinatesAndAddress.mapFromVworldRst(forObject);
     }
 
     private URI getVworldUri(String address, String type) {

@@ -1,6 +1,6 @@
 package com.easymap.easymap.config;
 
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.entity.user.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

@@ -1,7 +1,9 @@
-package com.easymap.easymap.entity;
+package com.easymap.easymap.entity.review;
 
 import com.easymap.easymap.dto.request.review.ReviewUpdateRequestDTO;
 import com.easymap.easymap.dto.response.review.ReviewResponseDTO;
+import com.easymap.easymap.entity.user.User;
+import com.easymap.easymap.entity.poi.Poi;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

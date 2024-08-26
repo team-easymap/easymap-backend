@@ -1,4 +1,4 @@
-package com.easymap.easymap.entity;
+package com.easymap.easymap.entity.poi;
 
 import com.easymap.easymap.dto.response.poi.PoiImgResponseDTO;
 import jakarta.persistence.*;
