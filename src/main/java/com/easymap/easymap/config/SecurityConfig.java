@@ -215,7 +215,8 @@ class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler
     }
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        log.info("OAuth2 authentication failed.");
+        log.warn("OAuth2 authentication failed.");
+        exception.printStackTrace();
 
         response.sendRedirect(redirectUrlFailed);
     }
