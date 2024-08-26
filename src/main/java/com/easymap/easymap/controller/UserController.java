@@ -98,7 +98,7 @@ public class UserController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/review")
-    public ResponseEntity<?> getMyReviews(@AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<? super MyReviewGetResponseDTO> getMyReviews(@AuthenticationPrincipal UserDetails userDetails){
         List<ReviewResponseDTO> reviewResponseDTOList = userService.getMyReviews(userDetails.getUsername());
 
         return MyReviewGetResponseDTO.success(reviewResponseDTOList);
@@ -106,14 +106,14 @@ public class UserController {
 
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/review/{reviewId}")
-    public ResponseEntity<?> updateReview(@PathVariable(value = "reviewId")Long reviewId, @RequestBody ReviewUpdateRequestDTO reviewUpdateRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<? super ResponseDto> updateReview(@PathVariable(value = "reviewId")Long reviewId, @RequestBody ReviewUpdateRequestDTO reviewUpdateRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
         userService.updateMyReview(reviewId, reviewUpdateRequestDTO, userDetails.getUsername());
         return ResponseDto.success();
     }
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/review/{reviewId}")
-    public ResponseEntity<?> deleteReview(@PathVariable(value = "reviewId")Long reviewId, @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<? super ResponseDto> deleteReview(@PathVariable(value = "reviewId")Long reviewId, @AuthenticationPrincipal UserDetails userDetails){
         userService.deleteMyReview(reviewId, userDetails.getUsername());
         return ResponseDto.success();
     }

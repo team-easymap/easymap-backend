@@ -22,7 +22,7 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping
-    public ResponseEntity<?> searchKeyword(String keyword){
+    public ResponseEntity<? super SearchResultResponseDTO> searchKeyword(String keyword){
         log.info(keyword);
         SearchResultResponseDTO searched = searchService.searchKeyword(keyword);
 
@@ -30,7 +30,7 @@ public class SearchController {
     }
 
     @PostMapping("/coordinate")
-    public ResponseEntity<?> postCoordinateFromAddress(@RequestBody SearchAddressPostRequestDTO addressPostRequestDTO){
+    public ResponseEntity<? super CoordinateResponseDTO> postCoordinateFromAddress(@RequestBody SearchAddressPostRequestDTO addressPostRequestDTO){
 
         Coordinates coordinates = searchService.postCoordinateToAddress(addressPostRequestDTO);
 
@@ -39,7 +39,7 @@ public class SearchController {
     }
 
     @GetMapping("/address")
-    public ResponseEntity<?> getAddressFromCoordinate(AddressFromCoordinateGetDTO coordinateGetDTO){
+    public ResponseEntity<? super AddressResultResponseDTO> getAddressFromCoordinate(AddressFromCoordinateGetDTO coordinateGetDTO){
 
         AddressResultDTO addressResultDTO = searchService.getAddressFromCoorinate(coordinateGetDTO);
 
