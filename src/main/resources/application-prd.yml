@@ -49,8 +49,11 @@ spring:
 
 jwt:
   secret: {{JWT_SECRET}}
-  redirect-url: {{REDIRECT_URL}}
-  redirect-url-failed: {{REDIRECT_URL_FAILED}}
+  cookie-secure: true
+  # redirect-url: {{REDIRECT_URL}}
+  # redirect-url-failed: {{REDIRECT_URL_FAILED}}
+  redirect-url: {{LOCAL_REDIRECT_URL}}
+  redirect-url-failed: {{LOCAL_REDIRECT_URL_FAILED}}
 
 
 aws:
