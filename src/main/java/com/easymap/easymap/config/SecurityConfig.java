@@ -174,6 +174,9 @@ class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler
     private final JwtProvider jwtProvider;
     private final String redirectUrl;
 
+    @Value("${jwt.cookie-secure}")
+    private boolean cookieSecure;
+
     public CustomAuthenticationSuccessHandler(UserRepository userRepository, JwtProvider jwtProvider, String redirectUrl) {
         this.userRepository = userRepository;
         this.jwtProvider = jwtProvider;
@@ -194,7 +197,7 @@ class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         //TODO 배포 시 true로 변경해야함 (TLS 적용 시)
-        cookie.setSecure(false);
+        cookie.setSecure(cookieSecure);
         response.addCookie(cookie);
 
         response.sendRedirect(redirectUrl);
@@ -211,7 +214,8 @@ class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler
     }
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        log.info("OAuth2 authentication failed.");
+        log.warn("OAuth2 authentication failed.");
+        exception.printStackTrace();
 
         response.sendRedirect(redirectUrlFailed);
     }
