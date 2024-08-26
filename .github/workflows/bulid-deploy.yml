@@ -33,7 +33,6 @@ jobs:
         sed -i -e "s#{{AWS_SECRET_ACCESS_KEY}}#${{ secrets.AWS_SECRET_ACCESS_KEY }}#g" ./src/main/resources/application-prd.yml
         sed -i -e "s#{{AWS_IMAGE_BUCKET_NAME}}#${{ secrets.AWS_IMAGE_BUCKET_NAME }}#g" ./src/main/resources/application-prd.yml
         sed -i -e "s#{{AWS_USER_RAWDATA_BUCKET_NAME}}#${{ secrets.AWS_USER_RAWDATA_BUCKET_NAME }}#g" ./src/main/resources/application-prd.yml
-        sed -i -e "s#{{BASE_URL}}#${{ secrets.BASE_URL }}#g" ./src/main/resources/application-prd.yml
         
         sed -i -e "s#{{FRONT_SERVER_URL}}#${{ secrets.FRONT_SERVER_URL }}#g" ./src/main/resources/application-prd.yml
 

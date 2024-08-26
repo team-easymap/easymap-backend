@@ -8,13 +8,13 @@ spring:
           google:
             client-id: {{GOOGLE_CLIENT_ID}}
             client-secret: {{GOOGLE_CLIENT_SECRET}}
-            redirect-uri: "{{BASE_URL}}/login/oauth2/code/{registrationId}"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
             scope: profile, email
           kakao:
             client-id: {{KAKAO_CLIEND_ID}}
             client-secret: {{KAKAO_CLIENT_SECRET}}
-            redirect-uri: "{{BASE_URL}}/login/oauth2/code/{registrationId}"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
             client-name: Kakao
