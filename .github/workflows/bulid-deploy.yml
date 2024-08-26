@@ -26,8 +26,10 @@ jobs:
         sed -i -e "s#{{DB_PASSWORD}}#${{ secrets.DB_PASSWORD }}#g" ./src/main/resources/application-prd.yml
 
         sed -i -e "s#{{JWT_SECRET}}#${{ secrets.JWT_SECRET }}#g" ./src/main/resources/application-prd.yml
-        sed -i -e "s#{{REDIRECT_URL}}#${{ secrets.REDIRECT_URL }}#g" ./src/main/resources/application-prd.yml
-        sed -i -e "s#{{REDIRECT_URL_FAILED}}#${{ secrets.REDIRECT_URL_FAILED }}#g" ./src/main/resources/application-prd.yml
+        # sed -i -e "s#{{REDIRECT_URL}}#${{ secrets.REDIRECT_URL }}#g" ./src/main/resources/application-prd.yml
+        # sed -i -e "s#{{REDIRECT_URL_FAILED}}#${{ secrets.REDIRECT_URL_FAILED }}#g" ./src/main/resources/application-prd.yml
+        sed -i -e "s#{{LOCAL_REDIRECT_URL}}#${{ secrets.LOCAL_REDIRECT_URL }}#g" ./src/main/resources/application-prd.yml
+        sed -i -e "s#{{LOCAL_REDIRECT_URL_FAILED}}#${{ secrets.LOCAL_REDIRECT_URL_FAILED }}#g" ./src/main/resources/application-prd.yml
 
         sed -i -e "s#{{AWS_ACCESS_KEY}}#${{ secrets.AWS_ACCESS_KEY }}#g" ./src/main/resources/application-prd.yml
         sed -i -e "s#{{AWS_SECRET_ACCESS_KEY}}#${{ secrets.AWS_SECRET_ACCESS_KEY }}#g" ./src/main/resources/application-prd.yml
