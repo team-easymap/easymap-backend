@@ -36,8 +36,8 @@ jobs:
         sed -i -e "s#{{AWS_IMAGE_BUCKET_NAME}}#${{ secrets.AWS_IMAGE_BUCKET_NAME }}#g" ./src/main/resources/application-prd.yml
         sed -i -e "s#{{AWS_USER_RAWDATA_BUCKET_NAME}}#${{ secrets.AWS_USER_RAWDATA_BUCKET_NAME }}#g" ./src/main/resources/application-prd.yml
         
-        # sed -i -e "s#{{FRONT_SERVER_URL}}#${{ secrets.FRONT_SERVER_URL }}#g" ./src/main/resources/application-prd.yml
-        sed -i -e "s#{{FRONT_SERVER_URL}}#${{ secrets.LOCAL_FRONT_SERVER_URL }}#g" ./src/main/resources/application-prd.yml
+        sed -i -e "s#{{FRONT_SERVER_URL}}#${{ secrets.FRONT_SERVER_URL }}#g" ./src/main/resources/application-prd.yml
+        # sed -i -e "s#{{FRONT_SERVER_URL}}#${{ secrets.LOCAL_FRONT_SERVER_URL }}#g" ./src/main/resources/application-prd.yml
 
         sed -i -e "s#{{VWORLD_CONFORM_KEY}}#${{ secrets.VWORLD_CONFORM_KEY }}#g" ./src/main/resources/application-prd.yml
         sed -i -e "s#{{JUSO_CONFORM_KEY}}#${{ secrets.JUSO_CONFORM_KEY }}#g" ./src/main/resources/application-prd.yml
