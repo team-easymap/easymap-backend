@@ -50,8 +50,8 @@ public class SecurityConfig implements WebMvcConfigurer {
     private final String redirectUrlFailed;
     private final JwtProvider jwtProvider;
 
-    // @Value("${front-server.url}")
-    // private String frontServerUrl;
+    @Value("${front-server.url}")
+    private String frontServerUrl;
 
     // @Override
     // public void addCorsMappings(CorsRegistry registry) {
@@ -60,7 +60,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     //             .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
     //             .allowedHeaders("*")
     //             .allowCredentials(true);
-    }
+    // }
 
     @Autowired
     public SecurityConfig(UserRepository userRepository, UserService userService, @Value("${jwt.redirect-url}") String redirectUrl, @Value("${jwt.redirect-url-failed}") String redirectUrlFailed, JwtProvider jwtProvider) {
