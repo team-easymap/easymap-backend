@@ -16,8 +16,10 @@ jobs:
     - name: Replace secrets in application.yml
       run: |
         sed -i -e "s#{{ACTIVE_PROFILE}}#${{ secrets.ACTIVE_PROFILE }}#g" ./src/main/resources/application.yml
-        sed -i -e "s#{{GOOGLE_CLIENT_ID}}#${{ secrets.GOOGLE_CLIENT_ID }}#g" ./src/main/resources/application-prd.yml
-        sed -i -e "s#{{GOOGLE_CLIENT_SECRET}}#${{ secrets.GOOGLE_CLIENT_SECRET }}#g" ./src/main/resources/application-prd.yml
+        # sed -i -e "s#{{GOOGLE_CLIENT_ID}}#${{ secrets.GOOGLE_CLIENT_ID }}#g" ./src/main/resources/application-prd.yml
+        # sed -i -e "s#{{GOOGLE_CLIENT_SECRET}}#${{ secrets.GOOGLE_CLIENT_SECRET }}#g" ./src/main/resources/application-prd.yml
+        sed -i -e "s#{{GOOGLE_CLIENT_ID}}#${{ secrets.TEST_GOOGLE_CLIENT_ID }}#g" ./src/main/resources/application-prd.yml
+        sed -i -e "s#{{GOOGLE_CLIENT_SECRET}}#${{ secrets.TEST_GOOGLE_CLIENT_SECRET }}#g" ./src/main/resources/application-prd.yml
         sed -i -e "s#{{KAKAO_CLIEND_ID}}#${{ secrets.KAKAO_CLIEND_ID }}#g" ./src/main/resources/application-prd.yml
         sed -i -e "s#{{KAKAO_CLIENT_SECRET}}#${{ secrets.KAKAO_CLIENT_SECRET }}#g" ./src/main/resources/application-prd.yml
 
