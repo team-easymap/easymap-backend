@@ -72,3 +72,9 @@ apikey:
   juso:
     search:
       conformKey: {{JUSO_CONFORM_KEY}}
+
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework.web: DEBUG
