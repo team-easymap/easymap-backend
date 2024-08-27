@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  FrontendS3bucketUrl:
+    Type: String
+  FrontendCloudFrontDistributionId:
+    Type: String
+Resources:
+
+  FrontendS3bucket:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: easymap.frontend.s3bucket
+      Type: String
+      Value: !Ref FrontendS3bucketUrl
+
+  FrontendCloudFrontDistribution:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: easymap.frontend.cloudfront-distribution
+      Type: String
+      Value: !Ref FrontendCloudFrontDistributionId

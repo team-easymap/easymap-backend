@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  SystemName:
+    Type: String
+    Default: "easymap"
+  Environment:
+    Type: String
+    AllowedValues:
+      - prd
+  HostedZoneId:
+    Type: String
+  DomainName:
+    Type: String
+  pBlueGrenTarget:
+    Type: String
+    AllowedValues:
+      - blue
+      - green
+
+Conditions:
+  BlueTarget:
+    !Equals [!Ref pBlueGrenTarget, blue]
+
+Resources:
+
+  # SecurityGroup
+
+  ElbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub "${SystemName}-${Environment}-elb-sg"
+      GroupDescription: Only HTTPS Access
+      SecurityGroupIngress:
+            - IpProtocol: "TCP"
+              Description: "Allow From All IP Address Range"
+              CidrIp: 0.0.0.0/0
+              FromPort: 443
+              ToPort: 443
+            - !Ref "AWS::NoValue"
+      VpcId:
+        Fn::ImportValue:
+          !Sub "${SystemName}-${Environment}-vpc"
+
+  # ELB
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub "${SystemName}-${Environment}-alb"
+      Subnets:
+        - Fn::ImportValue:
+            !Sub "${SystemName}-${Environment}-public-subnet01"
+        - Fn::ImportValue:
+            !Sub "${SystemName}-${Environment}-public-subnet02"
+      SecurityGroups:
+        - !Ref ElbSecurityGroup
+        - Fn::ImportValue:
+            !Sub "${SystemName}-${Environment}-default-sg"
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-alb"
+      Scheme: internet-facing
+      LoadBalancerAttributes:
+        - Key: access_logs.s3.enabled
+          Value: true
+        - Key: access_logs.s3.bucket
+          Value: !Sub "logs-${AWS::AccountId}"
+
+  LoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn:
+            Fn::ImportValue:              
+              !Sub "${SystemName}-${Environment}-acm"
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !If [ BlueTarget, !Ref ELBTargetGroupBlue, !Ref ELBTargetGroupGreen ]
+      SslPolicy: ELBSecurityPolicy-FS-1-2-Res-2020-10
+
+  LoadBalancerListenerTest:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 8080
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: 
+            Fn::ImportValue:
+              !Sub "${SystemName}-${Environment}-acm"
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !If [ BlueTarget, !Ref ELBTargetGroupBlue, !Ref ELBTargetGroupGreen ]
+      SslPolicy: ELBSecurityPolicy-FS-1-2-Res-2020-10
+
+  ELBTargetGroupBlue:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub "${SystemName}-${Environment}-blue-tg"
+      VpcId:
+        Fn::ImportValue:
+          !Sub "${SystemName}-${Environment}-vpc"
+      Port: 80
+      Protocol: HTTP
+      TargetType: ip
+      HealthCheckPath: /
+
+  ELBTargetGroupGreen:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub "${SystemName}-${Environment}-green-tg"
+      VpcId:
+        Fn::ImportValue:
+          !Sub "${SystemName}-${Environment}-vpc"
+      Port: 80
+      Protocol: HTTP
+      TargetType: ip
+      HealthCheckPath: /
+
+  # Route53
+
+  ELBRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      AliasTarget:
+        DNSName: !GetAtt LoadBalancer.DNSName
+        HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+        EvaluateTargetHealth: true
+      Comment: "ELB Alias RecordSet"
+      Name: !Sub "api.${DomainName}"
+      Type: "A"
+
+Outputs:
+  LoadBalancerArn:
+    Description: A reference to the Classic Load Balancer/ARN
+    Value: !Ref LoadBalancer
+    Export: 
+      Name: !Sub ${SystemName}-${Environment}-app-alb

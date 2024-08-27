@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  SystemName:
+    Type: String
+    Default: "easymap"
+  Environment:
+    Type: String
+    AllowedValues:
+      - prd
+  AcmCertificateArn:
+    Type: String
+    Default: "arn:aws:acm:us-east-1:905418448509:certificate/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  DomainName:
+    Type: String
+  PublicHostedZoneId:
+    Type: String
+
+Resources:
+
+  # CloudFront
+
+  ## Frontend Distribution
+  FrontendDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Aliases:
+          - !Sub "www.${DomainName}"
+        HttpVersion: "http2"
+        IPV6Enabled: false
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificateArn
+          MinimumProtocolVersion: "TLSv1.2_2021"
+          SslSupportMethod: "sni-only"
+        Origins:
+          - Id: !Sub ${SystemName}-${Environment}-frontend.s3.amazonaws.com
+            DomainName: !Sub ${SystemName}-${Environment}-frontend.s3.amazonaws.com
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${FrontendOriginAccessIdentity}
+        DefaultCacheBehavior:
+          TargetOriginId: !Sub ${SystemName}-${Environment}-frontend.s3.amazonaws.com
+          ForwardedValues:
+            QueryString: false
+          ViewerProtocolPolicy: "https-only"
+        DefaultRootObject: "index.html"
+        CustomErrorResponses:
+          - ErrorCachingMinTTL: 60
+            ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: "/"
+
+  # S3 Origin Distribution OAI
+
+  ## Frontend Distribution OAI
+  FrontendOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment:
+          Fn::Join:
+            - ""
+            -
+              - "Frontend S3Bucket Access "
+              - !Ref "Environment"
+
+  # S3 BucketPolicy
+
+  ## Frontend S3 BucketPolicy
+  FrontendS3BucketPolicyCloudFrontOai:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Sub ${SystemName}-${Environment}-frontend
+      PolicyDocument:
+        Statement:
+          - Action: s3:GetObject
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                -
+                  - "arn:aws:s3:::"
+                  - !Sub ${SystemName}-${Environment}-frontend
+                  - "/*"
+            Principal:
+              AWS: !Sub arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${FrontendOriginAccessIdentity}
+          - Sid: cicd_from_github
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:user/test'
+            Action: 
+              - 's3:*'
+            Resource:
+              - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-frontend/*'
+              - !Sub 'arn:aws:s3:::${SystemName}-${Environment}-frontend'
+
+  # Route53
+  UserFrontDistributionRecord:
+    Type: AWS::Route53::RecordSet
+    DeletionPolicy: Retain
+    Properties:
+      HostedZoneId: !Ref PublicHostedZoneId
+      AliasTarget:
+        DNSName: !GetAtt FrontendDistribution.DomainName
+        # CloudFront Specific HostedZoneId
+        HostedZoneId: "Z2FDTNDATAQYW2"
+      Comment: "Frontend S3Bucket Alias RecordSet"
+      Name: !Sub "www.${DomainName}"
+      Type: "A"

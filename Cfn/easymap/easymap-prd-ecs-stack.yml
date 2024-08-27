@@ -1,0 +1,248 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  SystemName:
+    Type: String
+    Default: "easymap"
+  Environment:
+    Type: String
+    AllowedValues:
+      - prd
+  InstanceType:
+    Type: String
+    Description: EC2 instance type
+    Default: "t3.micro"
+    AllowedValues:
+      - t3.2xlarge
+      - t3.large
+      - t3.medium
+      - t3.micro
+      - t3.nano
+      - t3.small
+      - t3.xlarge
+  DesiredCapacity:
+    Type: Number
+    Default: "0"
+    Description: Number of EC2 instances to launch in your ECS cluster.
+  MaxSize:
+    Type: Number
+    Default: "0"
+    Description: Maximum number of EC2 instances that can be launched in your ECS cluster.
+  ECSAMI:
+    Description: The Amazon Machine Image ID used for the cluster
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id
+
+Resources:
+
+  # ASG
+  # themselves as members of the cluster, and run the docker containers.
+  ECSAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn:
+      # This is to ensure that the ASG gets deleted first before these
+    # resources, when it comes to stack teardown.
+      - ECSCluster
+      - EC2Role
+    Properties:
+      VPCZoneIdentifier:
+            - Fn::ImportValue:
+                !Sub "${SystemName}-${Environment}-public-subnet01" 
+      LaunchTemplate:
+        LaunchTemplateId: !Ref ContainerInstances
+        Version: !GetAtt ContainerInstances.LatestVersionNumber
+      MinSize: 0
+      MaxSize:
+        Ref: MaxSize
+      DesiredCapacity:
+        Ref: DesiredCapacity
+      NewInstancesProtectedFromScaleIn: true
+    UpdatePolicy:
+      AutoScalingReplacingUpdate:
+        WillReplace: "true"
+  # The config for each instance that is added to the cluster
+  ContainerInstances:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: "asg-launch-template"
+      LaunchTemplateData:
+        ImageId:
+          Ref: ECSAMI
+        InstanceType:
+          Ref: InstanceType
+        IamInstanceProfile:
+          Name: !Ref EC2InstanceProfile
+        SecurityGroupIds:
+            - Fn::ImportValue:
+                !Sub "${SystemName}-${Environment}-default-sg"
+        # This injected configuration file is how the EC2 instance
+      # knows which ECS cluster on your AWS account it should be joining
+        UserData:
+          Fn::Base64: !Sub |
+           #!/bin/bash -xe
+            echo ECS_CLUSTER=${ECSCluster} >> /etc/ecs/ecs.config
+            yum install -y aws-cfn-bootstrap
+            /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource ContainerInstances --configsets full_install --region ${AWS::Region} &
+         # Disable IMDSv1, and require IMDSv2
+        MetadataOptions:
+          HttpEndpoint: enabled
+          HttpTokens: required
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles: 
+      - !Ref EC2Role 
+  # Create an ECS capacity provider to attach the ASG to the ECS cluster
+  # so that it autoscales as we launch more containers
+  CapacityProvider:
+    Type: AWS::ECS::CapacityProvider
+    Properties:
+      AutoScalingGroupProvider:
+        AutoScalingGroupArn: !Ref ECSAutoScalingGroup
+        ManagedScaling:
+          InstanceWarmupPeriod: 60
+          MinimumScalingStepSize: 1
+          MaximumScalingStepSize: 100
+          Status: ENABLED
+          # Percentage of cluster reservation to try to maintain
+          TargetCapacity: 100
+        ManagedTerminationProtection: ENABLED
+   # Create a cluster capacity provider assocation so that the cluster
+  # will use the capacity provider
+  CapacityProviderAssociation:
+    Type: AWS::ECS::ClusterCapacityProviderAssociations
+    Properties:
+      CapacityProviders:
+        - !Ref CapacityProvider
+      Cluster: !Ref ECSCluster
+      DefaultCapacityProviderStrategy:
+        - Base: 0
+          CapacityProvider: !Ref CapacityProvider
+          Weight: 1
+  # Role for the EC2 hosts. This allows the ECS agent on the EC2 hosts
+  # to communciate with the ECS control plane, as well as download the docker
+  # images from ECR to run on your host.
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+      # See reference: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-iam-awsmanpol.html#security-iam-awsmanpol-AmazonEC2ContainerServiceforEC2Role
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
+      # This managed policy allows us to connect to the instance using SSM
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      # Grants CodeDeploy permission to access Amazon ECS and any other resource required for a deployment.
+        - arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS
+        - !Sub "arn:aws:iam::${AWS::AccountId}:policy/${SystemName}-${Environment}-codebuild-policy"
+
+  # ECR
+
+  BackendEcr:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub "${SystemName}-backend"
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Delete more than 20 images",
+                "selection": {
+                  "tagStatus": "any",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 20
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
+
+  # ECS
+
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub "${SystemName}-${Environment}-backend-cluster"
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/ecs/logs/${SystemName}/backend"
+
+  ECSTask:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Cpu: 256
+      ExecutionRoleArn:
+        Fn::ImportValue:
+          !Sub "${SystemName}-cicd-role"
+      Family: backend
+      Memory: 512
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - EC2
+      # Container
+      ContainerDefinitions:
+        -
+          Name: !Sub "${SystemName}-backend"
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${SystemName}-backend:latest"
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref LogGroup
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: ecs
+          Memory: 512
+          MemoryReservation: 128
+          PortMappings:
+            -
+              HostPort: 80
+              Protocol: tcp
+              ContainerPort: 80
+
+  # ECSServiceLaravelEchoServer:
+  #   Type: AWS::ECS::Service
+  #   Properties: 
+  #     Cluster: !Ref ECSCluster
+  #     DesiredCount: 2
+  #     LaunchType: "FARGATE"
+  #     LoadBalancers: 
+  #       - ContainerName: !Sub "${SystemName}-laravel-echo-server"
+  #         ContainerPort: 80
+  #         TargetGroupArn:
+  #           Fn::ImportValue:
+  #             !Sub "${SystemName}-${Environment}-laravel-echo-server-tg"
+  #     NetworkConfiguration: 
+  #       AwsvpcConfiguration: 
+  #         SecurityGroups:
+  #           - Fn::ImportValue:
+  #               !Sub "${SystemName}-${Environment}-default-sg"
+  #         Subnets:
+  #           - Fn::ImportValue:
+  #               !Sub "${SystemName}-${Environment}-public-subnet01"
+  #           - Fn::ImportValue:
+  #               !Sub "${SystemName}-${Environment}-pubilc-subnet02"
+  #     PlatformVersion: "1.4.0"
+  #     ServiceName: !Sub "${SystemName}-laravel-echo-server"
+  #     TaskDefinition: !Ref ECSTaskLaravelEchoServer
+
+Outputs:
+  ClusterName:
+    Description: The ECS cluster into which to launch resources
+    Value: ECSCluster
+  CapacityProvider:
+    Description: The cluster capacity provider that the service should use to
+      request capacity when it wants to start up a task
+    Value: CapacityProvider

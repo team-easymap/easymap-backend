@@ -133,23 +133,21 @@ Resources:
   # Bucket Policy
 
   LogBucketPolicy:
-    Type: "AWS::S3::BucketPolicy"
-    Properties:
-      Bucket:
-        Ref: LogS3Bucket
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          -
-            Sid: "ElbLogOutput"
-            Effect: "Allow"
-            Principal:
-              AWS:
-                - "905418448509"
-            Action: "s3:PutObject"
-            Resource:
-              !Sub |-
-              arn:aws:s3:::${LogS3Bucket}/AWSLogs/${AWS::AccountId}/*
+  Type: "AWS::S3::BucketPolicy"
+  Properties:
+    Bucket:
+      Ref: LogS3Bucket
+    PolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        -
+          Sid: "ElbLogOutput"
+          Effect: "Allow"
+          Principal:
+            Service: "elasticloadbalancing.amazonaws.com"
+          Action: "s3:PutObject"
+          Resource:
+            !Sub "arn:aws:s3:::logs-${AWS::AccountId}/*"
 
   ImagesS3BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
@@ -182,6 +180,8 @@ Resources:
             Principal:
               AWS: 
                 - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-lambda-role'
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-ecs-stack-EC2Role-WUenMrPX6WOK'
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:user/test'
             Action: 
               - 's3:*'
             Resource:
@@ -318,6 +318,8 @@ Resources:
             Principal:
               AWS: 
                 - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-lambda-role'
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-ecs-stack-EC2Role-WUenMrPX6WOK'
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:user/test'
             Action: 
               - 's3:*'
             Resource:
@@ -376,6 +378,8 @@ Resources:
               Principal:
                 AWS: 
                   - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-lambda-role'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${SystemName}-${Environment}-ecs-stack-EC2Role-WUenMrPX6WOK'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:user/test'
               Action: 
                 - 's3:*'
               Resource:

@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  SystemName:
+    Type: String
+    Default: "easymap"
+  Environment:
+    Type: String
+    AllowedValues:
+      - prd
+  DomainName:
+    Type: String
+  HostedZoneId:
+    Type: String
+
+Resources:
+
+  # ACM
+  ACMCertificate:
+    Type: AWS::CertificateManager::Certificate
+    DeletionPolicy: Retain
+    Properties:
+      DomainName: !Ref DomainName
+      SubjectAlternativeNames:
+        - !Ref DomainName
+        - !Sub "*.${DomainName}"
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !Ref HostedZoneId
+      Tags:
+        - Key: Name
+          Value: !Sub "${SystemName}-${Environment}-acm"
+      ValidationMethod: DNS
+
+Outputs:
+  AcmArn:
+    Description: ARN of ACM for ELB
+    Value: !Ref ACMCertificate
+    Export:
+      Name: !Sub "${SystemName}-${Environment}-acm"
+
