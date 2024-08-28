@@ -1,5 +1,6 @@
 # 1. Use Amazon Corretto as base image
-FROM amazoncorretto:17
+#FROM amazoncorretto:17
+FROM openjdk:17-alpine
 
 # 2. Set working directory
 WORKDIR /app
@@ -20,6 +21,8 @@ COPY src /app/src
 
 # 8. Build the application
 RUN ./gradlew build --no-daemon
+
+EXPOSE 8080
 
 # 9. Run the application
 CMD ["java", "-jar", "-Dspring.profiles.active=prd", "build/libs/easymap-0.0.1-SNAPSHOT.jar"]
