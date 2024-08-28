@@ -35,7 +35,7 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
         String token = null;
 
         String path = request.getRequestURI();
-        if (path.startsWith("/api/v1/test/")||path.startsWith("/api/v1")) {
+        if (path.startsWith("/api/v1/test/")) {
             filterChain.doFilter(request, response);
             return;
         }
