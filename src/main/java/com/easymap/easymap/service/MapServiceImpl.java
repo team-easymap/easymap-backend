@@ -88,6 +88,7 @@ public class MapServiceImpl implements MapService{
                         .lat(poi.getPoiLatitude())
                         .lng(poi.getPoiLongitude())
                         .build())
+                .limit(100)
                 .collect(Collectors.toList());
 
 
