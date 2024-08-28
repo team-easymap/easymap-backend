@@ -53,14 +53,14 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Value("${front-server.url}")
     private String frontServerUrl;
 
-    // @Override
-    // public void addCorsMappings(CorsRegistry registry) {
-    //     registry.addMapping("/**")
-    //             .allowedOrigins(frontServerUrl, "favicon.ico") // React 앱 주소
-    //             .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-    //             .allowedHeaders("*")
-    //             .allowCredentials(true);
-    // }
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins(frontServerUrl, "favicon.ico") // React 앱 주소
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
 
     @Autowired
     public SecurityConfig(UserRepository userRepository, UserService userService, @Value("${jwt.redirect-url}") String redirectUrl, @Value("${jwt.redirect-url-failed}") String redirectUrlFailed, JwtProvider jwtProvider) {
