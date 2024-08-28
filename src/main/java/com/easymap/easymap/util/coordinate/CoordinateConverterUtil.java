@@ -33,8 +33,10 @@ public class CoordinateConverterUtil {
 
     private final ObjectMapper objectMapper;
 
+    private final RestTemplate restTemplate;
+
     public CoordinateData convertByDTOUsingJuso(SearchAddressPostRequestDTO requestDTO){
-        RestTemplate restTemplate = new RestTemplate();
+
         String url ="https://business.juso.go.kr/addrlink/addrCoordApi.do";
 
         URI uri = UriComponentsBuilder.fromHttpUrl(url)
@@ -66,7 +68,7 @@ public class CoordinateConverterUtil {
     }
 
     public CoordinatesAndAddress convertByAddressFromVworld(SearchAddressPostRequestDTO requestDTO) {
-        RestTemplate restTemplate = new RestTemplate();
+
 
 
         URI uri = getVworldUri(requestDTO.getAddress(), "road");
