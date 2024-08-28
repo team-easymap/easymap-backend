@@ -214,7 +214,8 @@ public class PoiServiceImpl implements PoiService{
         List<Poi> poisInBbox = poiRepository.findPoiInBbox(bboxPoiRequestDTO.getCategoryId(), smLat, bLat, smLng, bLng);
 
         List<PoiResponseDTO> collect = poisInBbox.stream()
-                .map(poi -> Poi.mapToDTO(poi)).collect(Collectors.toList());
+                .map(poi -> Poi.mapToDTO(poi))
+                .limit(100).collect(Collectors.toList());
 
         return collect;
     }
