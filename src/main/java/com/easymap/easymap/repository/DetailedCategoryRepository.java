@@ -9,5 +9,5 @@ import java.util.List;
 public interface DetailedCategoryRepository extends JpaRepository<DetailedCategory, Long> {
 
 
-    List<DetailedCategory> findDetailedCategoryByCategory(Category category);
+    List<DetailedCategory> findDetailedCategoryByCategory_CategoryId(Long categoryId);
 }

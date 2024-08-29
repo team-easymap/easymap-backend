@@ -1,7 +1,5 @@
-package com.easymap.easymap.entity;
+package com.easymap.easymap.entity.user;
 
-import com.easymap.easymap.dto.response.review.ReviewImgResponseDTO;
-import com.easymap.easymap.dto.response.user.LoadUserStatusResponseDto;
 import com.easymap.easymap.dto.response.user.UserDto;
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -26,8 +26,9 @@ public class SearchUtil {
     private final int currentPage = 1;
     private final int countPerPage = 10;
 
+    private final RestTemplate restTemplate;
+
     public List<AddressData>searchKeyword(String keyword){
-        RestTemplate restTemplate = new RestTemplate();
         String url ="https://business.juso.go.kr/addrlink/addrLinkApi.do";
         URI uri = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("confmKey", conformKey)

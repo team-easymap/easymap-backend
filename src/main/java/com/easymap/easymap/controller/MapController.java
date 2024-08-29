@@ -29,7 +29,7 @@ public class MapController {
     private final MapService mapService;
 
     @GetMapping("/pois")
-    public ResponseEntity<?> getPoisOnMap(@RequestParam List<Double> bbox){
+    public ResponseEntity<? super MapPoisResponseDTO> getPoisOnMap(@RequestParam List<Double> bbox){
 
         List<MapPoisDTO> mapPoisDTOList = mapService.getPoisOnMap(bbox);
 
@@ -37,16 +37,15 @@ public class MapController {
     }
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/routes")
-    public ResponseEntity<?> postUserRoute(@RequestBody UserRoutePostRequestDTO userRoutePostRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<? super ResponseDto> postUserRoute(@RequestBody UserRoutePostRequestDTO userRoutePostRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
 
         Long userRouteId = mapService.postUserRoute(userRoutePostRequestDTO, userDetails);
 
-        log.info("userRouteId : "+userRouteId);
         return ResponseDto.success();
     }
 
     @GetMapping("/routes")
-    public ResponseEntity<?> getRoute(@ModelAttribute @Valid RouteGetRequestDTO requestDTO){
+    public ResponseEntity<? super RouteResponseDTO> getRoute(@ModelAttribute @Valid RouteGetRequestDTO requestDTO){
         log.info(requestDTO.toString());
 
         List<RouteDTO> routeBetweenPois = mapService.getRouteBetweenPois(requestDTO);

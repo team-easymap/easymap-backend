@@ -1,7 +1,7 @@
 package com.easymap.easymap.config;
 
 
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.entity.user.User;
 import com.easymap.easymap.config.filter.JwtTokenValidatorFilter;
 import com.easymap.easymap.provider.JwtProvider;
 import com.easymap.easymap.repository.UserRepository;
@@ -82,7 +82,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/test/**").permitAll()
-                        .requestMatchers("/api/v1/**").authenticated()
+                        //.requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .httpBasic(auth -> auth.disable())
@@ -195,7 +195,7 @@ class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler
             email = (String) ((Map<String, Object>) oauth2User.getAttribute("kakao_account")).get("email");
         }
         User user = userRepository.findUserByEmailAndDeactivationDateIsNull(email).orElseThrow();
-        String jwt = jwtProvider.generateToken(user, 60 * 60 * 1000L);
+        String jwt = jwtProvider.generateToken(user, 60 * 60 * 30* 1000L);
 
         Cookie cookie = new Cookie("jwt", jwt);
         cookie.setPath("/");

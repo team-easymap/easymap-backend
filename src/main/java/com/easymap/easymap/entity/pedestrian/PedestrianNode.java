@@ -1,4 +1,4 @@
-package com.easymap.easymap.entity;
+package com.easymap.easymap.entity.pedestrian;
 
 import com.easymap.easymap.dto.process.map.pedestrian.PedestrianNodeProcessDTO;
 import jakarta.persistence.*;
@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.Point;
-
-import java.util.List;
 
 @Getter
 @Builder

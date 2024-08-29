@@ -1,4 +1,4 @@
-package com.easymap.easymap.entity;
+package com.easymap.easymap.entity.user;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

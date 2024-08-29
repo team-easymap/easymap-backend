@@ -1,6 +1,6 @@
 package com.easymap.easymap.provider;
 
-import com.easymap.easymap.entity.User;
+import com.easymap.easymap.entity.user.User;
 import com.easymap.easymap.handler.exception.AuthenticationException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

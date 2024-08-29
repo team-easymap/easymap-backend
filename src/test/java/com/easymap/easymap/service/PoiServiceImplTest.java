@@ -1,7 +1,7 @@
 package com.easymap.easymap.service;
 
-//import com.easymap.easymap.entity.Poi;
-//import com.easymap.easymap.entity.User;
+//import com.easymap.easymap.entity.poi.Poi;
+//import com.easymap.easymap.entity.user.User;
 //import com.easymap.easymap.entity.category.DetailedCategory;
 //import com.easymap.easymap.entity.category.Tag;
 //import com.easymap.easymap.repository.DetailedCategoryRepository;
