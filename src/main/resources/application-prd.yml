@@ -9,7 +9,7 @@ spring:
             client-id: {{GOOGLE_CLIENT_ID}}
             client-secret: {{GOOGLE_CLIENT_SECRET}}
             redirect-uri: https://{baseHost}{basePort}/login/oauth2/code/google
-            # authorization-grant-type: authorization_code
+            authorization-grant-type: authorization_code
             scope: profile, email
           kakao:
             client-id: {{KAKAO_CLIEND_ID}}
@@ -22,11 +22,11 @@ spring:
               - profile_nickname
               - account_email
         provider:
-          # google:
-          #   authorization-uri: https://accounts.google.com/o/oauth2/auth
-          #   token-uri: https://oauth2.googleapis.com/token
-          #   user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-          #   user-name-attribute: email
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: email
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
             token-uri: https://kauth.kakao.com/oauth/token
@@ -40,7 +40,7 @@ spring:
     password: {{DB_PASSWORD}}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
