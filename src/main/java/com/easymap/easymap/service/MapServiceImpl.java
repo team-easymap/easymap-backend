@@ -27,6 +27,8 @@ import org.jgrapht.alg.shortestpath.AStarShortestPath;
 import org.jgrapht.graph.SimpleWeightedGraph;
 import org.locationtech.jts.geom.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,16 +77,15 @@ public class MapServiceImpl implements MapService{
         Double smLng = Math.min(bbox.get(1), bbox.get(3));
         Double bLng = Math.max(bbox.get(1), bbox.get(3));
 
-        List<Poi> poisInBbox = poiRepository.findPoiInBbox(null, smLat, bLat, smLng, bLng);
+        // pageable로 리미트 설정
+        List<Poi> poisInBbox = poiRepository.findPoiInBbox(null, smLat, bLat, smLng, bLng, PageRequest.of(0,100));
 
-        List<Long> obstacleDcIdList = detailedCategoryRepository.findDetailedCategoryByCategory_CategoryId(4L).stream()
-                .map(dc -> dc.getDetailedCategoryId())
-                .collect(Collectors.toList());
+
 
         List<MapPoisDTO> collect = poisInBbox.stream().map(poi -> MapPoisDTO.builder()
                         .poiId(poi.getPoiId())
                         .poiName(poi.getPoiName())
-                        .type(obstacleDcIdList.contains(poi.getPoiId()) ? "obstacle" : "place")
+                        .type(poi.getDetailedCategory().getCategory().getCategoryName().equals("보행 장애물")? "obstacle" : "place")
                         .lat(poi.getPoiLatitude())
                         .lng(poi.getPoiLongitude())
                         .build())
@@ -189,7 +190,7 @@ public class MapServiceImpl implements MapService{
         PedestrianNodeProcessDTO endNode = PedestrianNode.mapToDTO(endRawNode);
 
         // 두 POI 사이의 장애물 데이터를 가져오는 로직
-        List<Poi> poiInBbox = poiRepository.findPoiInBbox(4L, map.get("minLat"), map.get("maxLat"), map.get("minLng"), map.get("maxLng"));
+        List<Poi> poiInBbox = poiRepository.findPoiInBbox(4L, map.get("minLat"), map.get("maxLat"), map.get("minLng"), map.get("maxLng"), Pageable.unpaged());
 
         // 그래프 선언
         Graph<PedestrianNodeProcessDTO, PedestrianLinkProcessDTO> graph = new SimpleWeightedGraph<>(PedestrianLinkProcessDTO.class);
