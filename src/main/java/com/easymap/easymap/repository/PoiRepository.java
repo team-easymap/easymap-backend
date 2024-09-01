@@ -34,5 +34,6 @@ public interface PoiRepository extends JpaRepository<Poi, Long> {
                             @Param("smLat") double smLat,
                             @Param("bLat") double bLat,
                             @Param("smLng") double smLng,
-                            @Param("bLng") double bLng);
+                            @Param("bLng") double bLng,
+                            Pageable pageable);
 }
