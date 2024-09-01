@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -211,7 +212,8 @@ public class PoiServiceImpl implements PoiService{
         Double smLng = Math.min(bbox.get(1), bbox.get(3));
         Double bLng = Math.max(bbox.get(1), bbox.get(3));
 
-        List<Poi> poisInBbox = poiRepository.findPoiInBbox(bboxPoiRequestDTO.getCategoryId(), smLat, bLat, smLng, bLng);
+        // Pageable로 리미트 설정
+        List<Poi> poisInBbox = poiRepository.findPoiInBbox(bboxPoiRequestDTO.getCategoryId(), smLat, bLat, smLng, bLng, PageRequest.of(0, 100));
 
         List<PoiResponseDTO> collect = poisInBbox.stream()
                 .map(poi -> Poi.mapToDTO(poi))
